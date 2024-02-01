@@ -1,0 +1,7 @@
+LayerSizes=784,200,200,200,10
+SplitIndex=300
+TrainingCycles=300
+LearnRate=0.2
+BatchSize=50
+PerformanceNotes=FFN-Ausgabe/Overfitting/PN(Overfitting)V2.html
+Visualization=FFN-Ausgabe/Visualization.html
