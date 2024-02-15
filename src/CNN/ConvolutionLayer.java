@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ConvolutionLayer {
+public class ConvolutionLayer extends Layer{
 
     private long SEED;
 
@@ -98,17 +98,63 @@ public class ConvolutionLayer {
         return output;
     }
 
-    double[] getOutput(List<double[][]> input){
+    public double[] getOutput(List<double[][]> input){
         List<double[][]> output = convolutionForwardPass(input);
 
-        // Next layer wurde noch nicht implementiert
         return this.nextLayer.getOutput(output);
     }
-    double[] getOutput(List<double[][]> input){
-        List<double[][]> output = convolutionForwardPass(input);
+    public double[] getOutput(double[] input){
+        List<double[][]> matrixinput = vectorToMatrix(input, inLength, inRows, inCols);
 
-        // Next layer wurde noch nicht implementiert
-        return this.nextLayer.getOutput(output);
+        return getOutput(matrixinput);
+    }
+
+    @Override
+    public void backPropagation(double[] dLdO) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'backPropagation'");
+    }
+
+    @Override
+    public void backPropagation(List<double[][]> dLdO) {
+        
+    }
+
+    @Override
+    public int getOutputLength() {
+        return filters.size()*inLength;
+    }
+
+    @Override
+    public int getOutputRows() {
+        return (inRows - filterSize) / stepSize + 1;
+    }
+
+    @Override
+    public int getOutputCols() {
+        return (inCols - filterSize) / stepSize + 1;
+    }
+
+    @Override
+    public int getOutputElements() {
+        return getOutputCols()*getOutputRows()*getOutputLength();
+    }
+
+    public double[][] SpaceArray(double[][] input){
+        if(stepSize==1){
+            return input;
+        }
+
+        int outRows = (input.length-1)*stepSize+1;
+        int outCols = (input[0].length-1)*stepSize+1;
+
+        double[][] output = new double[outRows][outCols];
+        for(int i=0; i<input.length; i++){
+            for(int j=0; j<input[0].length;j++){
+                output[i*stepSize][j*stepSize] = input[i][j];
+            }
+        }
+        return output;
     }
 
     
