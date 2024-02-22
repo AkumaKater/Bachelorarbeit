@@ -1,9 +1,12 @@
-package FFNetwork;
+package CNN;
 
-public class Layer {
+import FFNetwork.NNMath;
 
-    protected Layer nextLayer;
-    protected Layer previousLayer;
+import java.util.List;
+
+import FFNetwork.Activation;
+
+public class FullyConnectedLayer extends Layer{
 
     int numInputNodes, numOutputNodes;
     double[][] weights;
@@ -17,7 +20,7 @@ public class Layer {
     double[] weightedInputs;
     double[] activations;
 
-    public Layer(int numInputNodes, int numOutputNodes) {
+    public FullyConnectedLayer(int numInputNodes, int numOutputNodes) {
         this.numInputNodes = numInputNodes;
         this.numOutputNodes = numOutputNodes;
         weights = NNMath.RandomDoubleArrayMatrix(numOutputNodes, numInputNodes);
@@ -31,25 +34,7 @@ public class Layer {
         CostSteigungB = new double[numOutputNodes];
     }
 
-    public double[] CalculateOutputs(double[] inputs) {
-        this.inputs = inputs;
-        Activation activ = Activation.geActivation();
-        for (int nodeOut = 0; nodeOut < numOutputNodes; nodeOut++) {
-            // double weightedInput = 0;
-            // Wird nun mit dem Bias initialisiert
-            double weightedInput = bias[nodeOut];
-            for (int nodeIn = 0; nodeIn < numInputNodes; nodeIn++) {
-                weightedInput += inputs[nodeIn] * weights[nodeOut][nodeIn];
-            }
-            weightedInputs[nodeOut] = weightedInput;
-            activations[nodeOut] = activ.ActivationFunction(weightedInput);
-        }
-        if(nextLayer==null){
-            return activations;
-        }else{
-            return nextLayer.CalculateOutputs(activations);
-        }
-    }
+
 
     private double CostAbleitung(double activation, double expectedOutput) {
         return 2 * (activation - expectedOutput);
@@ -65,7 +50,7 @@ public class Layer {
         return nodeValues;
     }
 
-    public double[] CalculateHiddenLayerNodeValues(Layer oldLayer, double[] nodeValues) {
+    public double[] CalculateHiddenLayerNodeValues(FullyConnectedLayer oldLayer, double[] nodeValues) {
         double[] newNodeValues = new double[numOutputNodes];
         Activation ac = Activation.geActivation();
         for (int i = 0; i < numOutputNodes; i++) {
@@ -102,5 +87,63 @@ public class Layer {
         this.CostSteigungW = new double[numInputNodes][numOutputNodes];
         //Die Änderungsraten für die Biases müssen auch zurückgesetzt werden
         this.CostSteigungB = new double[numOutputNodes];
+    }
+
+    @Override
+    public double[] getOutput(List<double[][]> input) {
+        return getOutput(matrixToVector(input));
+    }
+
+    @Override
+    public double[] getOutput(double[] input) {
+        this.inputs = input;
+        Activation activ = Activation.geActivation();
+        for (int nodeOut = 0; nodeOut < numOutputNodes; nodeOut++) {
+            // double weightedInput = 0;
+            // Wird nun mit dem Bias initialisiert
+            double weightedInput = bias[nodeOut];
+            for (int nodeIn = 0; nodeIn < numInputNodes; nodeIn++) {
+                weightedInput += input[nodeIn] * weights[nodeOut][nodeIn];
+            }
+            weightedInputs[nodeOut] = weightedInput;
+            activations[nodeOut] = activ.ActivationFunction(weightedInput);
+        }
+        return nextLayer.getOutput(activations);
+    }
+
+    @Override
+    public void backPropagation(double[] dLdO) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'backPropagation'");
+    }
+
+    @Override
+    public void backPropagation(List<double[][]> dLdO) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'backPropagation'");
+    }
+
+    @Override
+    public int getOutputLength() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getOutputLength'");
+    }
+
+    @Override
+    public int getOutputRows() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getOutputRows'");
+    }
+
+    @Override
+    public int getOutputCols() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getOutputCols'");
+    }
+
+    @Override
+    public int getOutputElements() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getOutputElements'");
     }
 }

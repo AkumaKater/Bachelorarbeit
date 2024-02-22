@@ -82,11 +82,51 @@ Zwei mögliche Pooling Operationen sind das Durschnitts Pooling und das Maximum 
   \item Das Durchschnitts Pooling gibt den Durchschnitt aller Werte als Output zurück, während
   \item das Maximum Pooling nur den Größten Wert der betrachteten Werte zurückgibt.
 \end{itemize}
-Es gibt noch weitere, wie zum Beispiel das Globale Pooling, bei dem die Gesammte Feature Map auf einen einzigen Wert reduziert wird. Dadurch soll auf eine möglichst Aggressive Art festgestellt werden, ob ein bestimmtes Feature überhaupt in der Feature Map vorkommt. Je nach Anwendungsfall kann auch diese Methode erfolg bringen.
+Es gibt noch weitere, wie zum Beispiel das Globale Pooling, bei dem die Gesammte Feature Map auf einen einzigen Wert reduziert wird. Dadurch soll auf eine möglichst Aggressive Art festgestellt werden, ob ein bestimmtes Feature überhaupt in der Feature Map vorkommt. Je nach Anwendungsfall kann auch diese Methode Erfolg bringen.
+
+Zunächste wird die Maximum Pooling Layer betrachtet.
+genau wie bei den Convolutional Layern, wird hier eine StepSize verwendet. Zwar ändert sich diese in den meisten Fällen nicht, aber es ist gut, die Flexibilität zu haben.
+Die windowrSize legt fest, welche Dimensionen der Filter haben soll.
+\begin{lstlisting}[language=Java]
+public class MaxPoolLayer extends Layer {
+
+    private int stepSize;
+    private int windowSize;
+
+    private int inLength;
+    private int inRows;
+    private int inCols;
+\end{lstlisting}
+
+\subsection{Forward Propagation im Pooling Layer}
+Wie oben beschrieben, wird hier ein kleiner Filter benutzt, der über die Input Bilder gleitet, und entweder den maximalen Wert, oder den Durchschnittswert zurückgibt. 
+Zunächst wird eine Methode benötigt, die den Filter darstellt, und eine Feature Map durchläuft. 
+
+\begin{lstlisting}[language=Java]
+ public double[][] pool(double[][] input){
+        double[][] output = new double[getOutputRows()][getOutputCols()];
+        for(int r=0; r<getOutputRows(); r+=stepSize){
+            for(int c=0; c<getOutputCols(); c+=stepSize){
+                double max = 0.0;
+                for(int x=0; x<windowSize; x++){
+                    for(int y=0; y<windowSize; y++){
+                        if(max<input[r+x][c+y]){
+                            max=input[r+x][c+y];
+                        }
+                    }
+                }
+                output[r][c] = max;
+            }
+        }
+        return output;
+    }
+\end{lstlisting}
 
 
+\subsection{Backpropagation im Pooling Layer}
 
 
+\cleardoublepage
 \section{Unterstützungs Templates}
 Die Gliederung dieser Arbeit, entspricht einer organischen Herangehensweise oder einer Anleitung, wie ein Netzwerk aufgebaut wird. Jedes Kapitel entspricht einem Teil des Netzwerkes, also den Funktionen, der Initialisierung, der Query oder Abfrage und dem Lern- oder Backpropagation-Algorithmus. Jedes der Kapitel startet mit einer Übersicht, über die Funktionalität, erläutert die Theorie dahinter, teilweise auch mathematisch, und schließt, mit dem daraus resultierenden Code ab. 
 
@@ -160,7 +200,9 @@ Im Laufe der Zeit sind die modernen Netzwerke immer komplexer geworden und liefe
 \sloppy
 \section{Quellen}
 \begin{itemize}
-\item 1. B. Lenze, Einführung in die Mathematik neuronaler Netze. Berlin: Logos Verlag; 2009.
+\item 1. Alexey Kravets, "Forward and Backward propagation of Max Pooling Layer in Convolutional Neural Networks", URL: https://towardsdatascience.com/forward-and-backward-propagation-of-pooling-layers-in-convolutional-neural-networks-11e36d169bec
+
+
 \item 2. T. Rashid, Neuronale Netze selbst programmieren - Ein verständlicher Einstieg mit Python. Paderborn: O’Reilly Verlag; 2017.
 \item 3. S. Lague, How to Create a Neural Network (and Train it to Identify Doodles). Hrsg. auf dem YouTube Kanal [Sebastian Lague](\url{https://www.youtube.com/@SebastianLague}). Ohne Jahr [zitiert am 16. September 2023]. Abrufbar unter: URL: \url{https://www.youtube.com/watch?v=hfMk-kjRv4c}.
 \item 4. "Ableitung der Sigmoid-Funktion" URL: \url{https://ichi.pro/de/ableitung-der-sigmoid-funktion-91708302791054}

@@ -13,14 +13,17 @@ public class NeuralNetwork {
             layers[i] = new Layer(layerSizes[i], layerSizes[i + 1]);
         }
         this.learnRate = learnRate;
+        Linklayers();
     }
 
     // Abfragen
     public double[] Querry(double[] inputs) {
-        for (Layer layer : layers) {
+        return layers[0].CalculateOutputs(inputs);
+        /*for (Layer layer : layers) {
             inputs = layer.CalculateOutputs(inputs);
         }
         return inputs;
+        */
     }
 
     // Den Fehler berechnen mit der Cost Funktion
@@ -75,5 +78,17 @@ public class NeuralNetwork {
         for (Layer layer : layers) {
             layer.ClearGradient();
         }
+    }
+
+    public void Linklayers(){
+        if(layers.length<=1){
+            return;
+        }
+        for(int i=1;i<(layers.length-1);i++){
+            layers[i].nextLayer = layers[i+1];
+            layers[i].previousLayer = layers[i-1];
+        }
+        layers[0].nextLayer = layers[1];
+        layers[layers.length-1].previousLayer = layers[layers.length-2];
     }
 }
