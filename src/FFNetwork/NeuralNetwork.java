@@ -59,7 +59,7 @@ public class NeuralNetwork {
     void UpdateAllGradients(MnistMatrix dataPoint) {
         Querry(dataPoint.getInputs());
         Layer outputLayer = layers[layers.length - 1];
-        outputLayer.BackPropagation(dataPoint.getTargets());y
+        outputLayer.BackPropagation(dataPoint.getTargets());
 
         /* double[] nodeValues = outputLayer.CalculateOutputLayerNodeValues(dataPoint.getTargets());
         outputLayer.UpdateGradients(nodeValues);
