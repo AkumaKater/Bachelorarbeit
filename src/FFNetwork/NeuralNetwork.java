@@ -59,13 +59,15 @@ public class NeuralNetwork {
     void UpdateAllGradients(MnistMatrix dataPoint) {
         Querry(dataPoint.getInputs());
         Layer outputLayer = layers[layers.length - 1];
-        double[] nodeValues = outputLayer.CalculateOutputLayerNodeValues(dataPoint.getTargets());
+        outputLayer.BackPropagation(dataPoint.getTargets());y
+
+        /* double[] nodeValues = outputLayer.CalculateOutputLayerNodeValues(dataPoint.getTargets());
         outputLayer.UpdateGradients(nodeValues);
         for (int index = layers.length - 2; index >= 0; index--) {
             Layer hiddenLayer = layers[index];
             nodeValues = hiddenLayer.CalculateHiddenLayerNodeValues(layers[index + 1], nodeValues);
             hiddenLayer.UpdateGradients(nodeValues);
-        }
+        } */
     }
 
     private void ApplyAllGradients(double learnrate) {

@@ -55,6 +55,24 @@ public class Layer {
         return 2 * (activation - expectedOutput);
     }
 
+    public double[] BackPropagation(double[] expectedOutputs){
+        double[] nodeValues = expectedOutputs;
+        if(nextLayer==null){
+            nodeValues = CalculateOutputLayerNodeValues(expectedOutputs);
+        }else{
+            nodeValues = CalculateHiddenLayerNodeValues(nextLayer, nodeValues);
+        }
+
+        UpdateGradients(nodeValues);
+
+        if(previousLayer==null){
+            return nodeValues;
+        }else{
+            return previousLayer.BackPropagation(nodeValues);
+        }
+
+    }
+
     public double[] CalculateOutputLayerNodeValues(double[] expectedOutputs) {
         double[] nodeValues = new double[expectedOutputs.length];
         for (int i = 0; i < nodeValues.length; i++) {
