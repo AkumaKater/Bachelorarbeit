@@ -86,7 +86,9 @@ Es gibt noch weitere, wie zum Beispiel das Globale Pooling, bei dem die Gesammte
 
 Zunächste wird die Maximum Pooling Layer betrachtet.
 genau wie bei den Convolutional Layern, wird hier eine StepSize verwendet. Zwar ändert sich diese in den meisten Fällen nicht, aber es ist gut, die Flexibilität zu haben.
-Die windowrSize legt fest, welche Dimensionen der Filter haben soll.
+Die windowSize legt fest, welche Dimensionen der Filter haben soll.
+\\Außerdem ist es hilfreich, wenn die input Parameter auch gespeichert werden, damit gemeint sind input length, input rows und input columns, also die menge an Bilder, zusammen mit den Zeilen und Reihen die diese Bilder haben.
+
 \begin{lstlisting}[language=Java]
 public class MaxPoolLayer extends Layer {
 
@@ -96,7 +98,7 @@ public class MaxPoolLayer extends Layer {
     private int inLength;
     private int inRows;
     private int inCols;
-\end{lstlisting}
+\end{lstlisting} 
 
 \subsection{Forward Propagation im Pooling Layer}
 Wie oben beschrieben, wird hier ein kleiner Filter benutzt, der über die Input Bilder gleitet, und entweder den maximalen Wert, oder den Durchschnittswert zurückgibt. 
@@ -104,10 +106,13 @@ Zunächst wird eine Methode benötigt, die den Filter darstellt, und eine Featur
 
 \begin{lstlisting}[language=Java]
  public double[][] pool(double[][] input){
+ 		//Die Output Dimensionen müssen berechnet werden
         double[][] output = new double[getOutputRows()][getOutputCols()];
+        //zwei Schleifen um über den Input zu Iterieren
         for(int r=0; r<getOutputRows(); r+=stepSize){
             for(int c=0; c<getOutputCols(); c+=stepSize){
                 double max = 0.0;
+                //Zwei Schleifen um das Maximum im Fenster des Filters zu finden
                 for(int x=0; x<windowSize; x++){
                     for(int y=0; y<windowSize; y++){
                         if(max<input[r+x][c+y]){
@@ -121,10 +126,42 @@ Zunächst wird eine Methode benötigt, die den Filter darstellt, und eine Featur
         return output;
     }
 \end{lstlisting}
+Alternativ kann natürlich auch der Durchschnitt errechnet und ausgegeben werden. Dazu sind keine Großen Anpassungen nötig:
+\begin{lstlisting}[language=Java]
+ public double[][] pool(double[][] input){
+ 		//Die Output Dimensionen müssen berechnet werden
+        double[][] output = new double[getOutputRows()][getOutputCols()];
+        //zwei Schleifen um über den Input zu Iterieren
+        for(int r=0; r<getOutputRows(); r+=stepSize){
+            for(int c=0; c<getOutputCols(); c+=stepSize){
+                double average = 0.0;
+                //Zwei Schleifen um die Werte im Fenster des Filters zu addieren
+                for(int x=0; x<windowSize; x++){
+                    for(int y=0; y<windowSize; y++){
+                    	average+=input[r+x][c+y];
+                    }
+                }
+                //Der Durchschnitt muss natürlich noch durch die menge der im Filter Fenster enthaltenen Pixel geteilt werden
+                output[r][c] = average/(windowSize*windowSize);
+            }
+        }
+        return output;
+    }
+\end{lstlisting}
+Im Code wurden die Methoden getOutputRows und getOutputCols schon verwendet, also müssen diese auch noch Implementiert werden. Die 
 
+\begin{lstlisting}[language=Java]
+    public int getOutputRows() {
+        return (inRows - windowSize) / stepSize + 1;
+    }
+
+    public int getOutputCols() {
+        return (inCols - windowSize) / stepSize + 1;
+    }
+\end{lstlisting}
 
 \subsection{Backpropagation im Pooling Layer}
-
+Für 
 
 \cleardoublepage
 \section{Unterstützungs Templates}
