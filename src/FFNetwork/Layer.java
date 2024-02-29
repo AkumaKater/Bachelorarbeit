@@ -44,9 +44,9 @@ public class Layer {
             weightedInputs[nodeOut] = weightedInput;
             activations[nodeOut] = activ.ActivationFunction(weightedInput);
         }
-        if(nextLayer==null){
+        if (nextLayer == null) {
             return activations;
-        }else{
+        } else {
             return nextLayer.CalculateOutputs(activations);
         }
     }
@@ -55,19 +55,19 @@ public class Layer {
         return 2 * (activation - expectedOutput);
     }
 
-    public double[] BackPropagation(double[] expectedOutputs){
+    public double[] BackPropagation(double[] expectedOutputs) {
         double[] nodeValues = expectedOutputs;
-        if(nextLayer==null){
+        if (nextLayer == null) {
             nodeValues = CalculateOutputLayerNodeValues(expectedOutputs);
-        }else{
-            nodeValues = CalculateHiddenLayerNodeValues(nextLayer, nodeValues);
+        } else {
+            nodeValues = CalculateHiddenLayerNodeValues(nodeValues);
         }
 
         UpdateGradients(nodeValues);
 
-        if(previousLayer==null){
+        if (previousLayer == null) {
             return nodeValues;
-        }else{
+        } else {
             return previousLayer.BackPropagation(nodeValues);
         }
 
@@ -83,7 +83,8 @@ public class Layer {
         return nodeValues;
     }
 
-    public double[] CalculateHiddenLayerNodeValues(Layer oldLayer, double[] nodeValues) {
+    public double[] CalculateHiddenLayerNodeValues(double[] nodeValues) {
+        Layer oldLayer = nextLayer;
         double[] newNodeValues = new double[numOutputNodes];
         Activation ac = Activation.geActivation();
         for (int i = 0; i < numOutputNodes; i++) {
@@ -101,7 +102,7 @@ public class Layer {
                 double derivativeCostWrtWeight = inputs[nodeIn] * nodeValues[nodeOut];
                 CostSteigungW[nodeIn][nodeOut] += derivativeCostWrtWeight;
             }
-            //Hier werden die Änderungsraten für die Biases gespeichert
+            // Hier werden die Änderungsraten für die Biases gespeichert
             CostSteigungB[nodeOut] = 1 * nodeValues[nodeOut];
         }
     }
@@ -111,14 +112,14 @@ public class Layer {
             for (int j = 0; j < numInputNodes; j++) {
                 weights[i][j] -= CostSteigungW[j][i] * learnrate;
             }
-            //Die Änderungsraten der Biases müssen von den Biases abgezogen werden
-            bias[i] -= CostSteigungB[i]*learnrate;
+            // Die Änderungsraten der Biases müssen von den Biases abgezogen werden
+            bias[i] -= CostSteigungB[i] * learnrate;
         }
     }
 
     public void ClearGradient() {
         this.CostSteigungW = new double[numInputNodes][numOutputNodes];
-        //Die Änderungsraten für die Biases müssen auch zurückgesetzt werden
+        // Die Änderungsraten für die Biases müssen auch zurückgesetzt werden
         this.CostSteigungB = new double[numOutputNodes];
     }
 }

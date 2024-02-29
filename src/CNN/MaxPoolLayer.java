@@ -24,6 +24,11 @@ public class MaxPoolLayer extends Layer {
     }
 
     public List<double[][]> maxPoolForwardPass(List<double[][]> input) {
+
+        //Initialisierung der lastMaxRo und Col, in denen die Position der Maximalen Werte gespeichert werden
+        lastMaxRow = new ArrayList<>();
+        lastMaxCol = new ArrayList<>();
+
         List<double[][]> output = new ArrayList<>();
         for (int l = 0; l < input.size(); l++) {
             output.add(pool(input.get(l)));
@@ -73,14 +78,34 @@ public class MaxPoolLayer extends Layer {
 
     @Override
     public void backPropagation(double[] dLdO) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'backPropagation'");
+        List<double[][]> matrixList = vectorToMatrix(dLdO, getOutputLength(), getOutputRows(), getOutputCols());
+        backPropagation(matrixList);
     }
 
     @Override
     public void backPropagation(List<double[][]> dLdO) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'backPropagation'");
+        List<double[][]> dXdL = new ArrayList<>();
+
+        int l=0;
+        for(double[][] array : dLdO){
+            double[][] error = new double[inRows][inCols];
+
+            for(int r=0; r<getOutputRows(); r++){
+                for(int c=0; c<getOutputCols(); c++){
+                    int max_i = lastMaxRow.get(l)[r][c];
+                    int max_j = lastMaxCol.get(l)[r][c];
+
+                    if(max_i != -1){
+                        error[max_i][max_j] += array[r][c];
+                    }
+                }
+            }
+            dXdL.add(error);
+            l++;
+        }
+        if(previousLayer != null){
+            previousLayer.backPropagation(dXdL);
+        }
     }
 
     @Override

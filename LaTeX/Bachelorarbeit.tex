@@ -148,7 +148,13 @@ Alternativ kann natürlich auch der Durchschnitt errechnet und ausgegeben werden
         return output;
     }
 \end{lstlisting}
-Im Code wurden die Methoden getOutputRows und getOutputCols schon verwendet, also müssen diese auch noch Implementiert werden. Die 
+Im Code wurden die Methoden getOutputRows und getOutputCols schon verwendet, also müssen diese auch noch Implementiert werden. Die Formel dazu sieht folgendermaßen [1] aus:
+$$H_{out} = floor(1 + (H - pool\_height)/stride)$$
+$$W_{out} = floor(1 + (W - pool\_ width)/stride)$$
+
+$H_{out}$ und $W_{out}$ entsprechen den Dimensionen des output Fensters. 
+
+Und im Code werden diese so umgesetzt:
 
 \begin{lstlisting}[language=Java]
     public int getOutputRows() {
@@ -161,7 +167,113 @@ Im Code wurden die Methoden getOutputRows und getOutputCols schon verwendet, als
 \end{lstlisting}
 
 \subsection{Backpropagation im Pooling Layer}
-Für 
+Für die Backpropagation in einem Pooling Layer müssen keine gewichte oder Biases angepasst werden. Denn diese gibt es hier nicht. Stattdessen muss der Fehler aber trotzdem auf einen der Inputs zurückgeführt werden, das heißt zum Beispiel, dass beim Max Pooling aus jedem von dem Filter Fenster betrachteten Gebiet der Maximale Wert für den Fehler verantwortlich war, und die anderen Werte keine Verantwortung tragen. 
+Am besten gelingt dies, indem die Positionen der Maximal Werte gespeichert werden.
+Dazu sollten erst neuen Instanzvariablen angelegt werden:
+
+
+\begin{lstlisting}[language=Java]
+    List<int[][]> lastMaxRow;
+    List<int[][]> lastMaxCol; 
+\end{lstlisting}
+
+Zwei Listen, welche 2-Dimensionale Arrays enthalten, jeweils eine liste für die Koordinate der X und eine für die Y Achse.
+Danach müssen diese Initialisiert werden, und zwar in der "maxPoolForwardPass" Methode. Das stellt sicher, dass sie initialisiert werden, bevor das pooling beginnt:
+
+\begin{lstlisting}[language=Java]
+    public List<double[][]> maxPoolForwardPass(List<double[][]> input) {
+        //Initialisierung der lastMaxRow und Col, in denen die Position der Maximalen Werte gespeichert werden
+        lastMaxRow = new ArrayList<>();
+        lastMaxCol = new ArrayList<>();
+\end{lstlisting}
+
+Um die Werte dann zu speichern, müssen diese während der pooling Operation gespeichert werden.
+Dazu können zwei 2-Dimensionale Integer Arrays verwendet werden, welche mit den gleichen Maßen initialisiert werden, wie die Outputs. Das heißt, dass für jeden Output die X und Y Koordinate im dazugehörigen lastMax-Array ein entsprechender Platz vorhanden ist.
+
+\begin{lstlisting}[language=Java]
+public double[][] pool(double[][] input) {
+        double[][] output = new double[getOutputRows()][getOutputCols()];
+
+        int[][] maxRows = new int[getOutputRows()][getOutputCols()];
+        int[][] maxCols = new int[getOutputRows()][getOutputCols()];   
+\end{lstlisting}
+für den Fall, das kein maximum über 0 gefunden werden konnnte, sollten Koordinaten trotzdem markiert werden, darum werden die alle Felder zuerst auf -1 gesetzt:
+\begin{lstlisting}[language=Java]
+        for (int r = 0; r < getOutputRows(); r += stepSize) {
+            for (int c = 0; c < getOutputCols(); c += stepSize) {
+                double max = 0.0;
+
+                maxRows[r][c] = -1;
+                maxCols[r][c] = -1;
+\end{lstlisting}
+In der inneren Schleife müssen die Koordinaten natürlich auch gespeichert werden, wenn ein neues Maximum im Fenster gefunden wurde:
+\begin{lstlisting}[language=Java]
+                for (int x = 0; x < windowSize; x++) {
+                    for (int y = 0; y < windowSize; y++) {
+                        if (max < input[r + x][c + y]) {
+                            max = input[r + x][c + y];
+//Koordinaten des Maximalen Wertes werden in den dafür vorgesehenen Arrays gespeichert
+                            maxRows[r][c] = r + x;
+                            maxCols[r][c] = c + y;
+                        }
+                    }
+                }
+                output[r][c] = max;
+            }
+        }
+\end{lstlisting}
+zuletzt müssen die Arrays, welche die Koordinaten enthalten noch den Listen hinzugefügt werden, die am Anfang Initialisiert wurden:
+\begin{lstlisting}[language=Java]
+        lastMaxRow.add(maxRows);
+        lastMaxCol.add(maxCols);
+        return output;
+    }
+\end{lstlisting}
+
+Die eigentliche Umsetzung der Backpropagation findet in der "backPropagation" Methode statt. Der Grundgedanke ist der, dass nur der Maximalwert zum Fehler beigetragen hat, und daher auch nur dieser Wert angepasst werden muss. Also Erstellt man eine Fehlermatrix, die überall nur 0 enthält, außer an den Stellen, von denen die Maximalwerte genommen wurden. Da werden die Fehlerwerte eingetragen, und dann, da es hier keinerlei Gewichte oder Biases gibt, wird diese Fehlermatrix dann an die nächste Schicht weitergegeben.
+Zuerst muss eine Liste mit den Fehlermatrizen erstellt und initialisiert werden und es wird ein Zähler benötigt, um über alle vorher angelegten Koordinaten-Matrizen zu iterieren, welche die Positionen der Maximalwerte enthalten.
+\begin{lstlisting}[language=Java]
+    public void backPropagation(List<double[][]> dLdO) {
+        List<double[][]> dXdL = new ArrayList<>();
+        int l=0;
+\end{lstlisting}
+Dann wird über alle eingehenden Fehlermatrizen iterriert, um die jeweilige Fehlermatrize zu erstellen, die an die nächste Schicht weitergegeben wird. letztere muss zunächst initialisiert werden.  
+\begin{lstlisting}[language=Java]
+        for(double[][] array : dLdO){
+            double[][] error = new double[inRows][inCols];
+\end{lstlisting}
+Dann muss die eingehende Fehlermatrix durchiteriert werden. für jeden eingehenden wert wird die Position des verantwortlichen Maximalwerts ermittelt. In der entstehenden Fehlermatrix wird der eingehende fehler dann an der jeweiligen Position hinzugefügt. Wichtig ist, dass der Wert zu den bestehenden Werten hinzugefügt wird. meistens überlappen sich die betrachteten fenster in der Pooling Phase nicht, aber falls doch, kann ein ein Wert in mehreren Fenstern der Maximalwert sein, daher ist dieser wert dann auch sozusagen für mehrere Fehler verantwortlich. Das wird dadurch ausgedrückt, dass der Fehlerwert dann aufaddiert wird.
+\begin{lstlisting}[language=Java]
+            for(int r=0; r<getOutputRows(); r++){
+                for(int c=0; c<getOutputCols(); c++){
+                    int max_i = lastMaxRow.get(l)[r][c];
+                    int max_j = lastMaxCol.get(l)[r][c];
+
+                    if(max_i != -1){
+                        error[max_i][max_j] += array[r][c];
+                    }
+                }
+            }
+\end{lstlisting}
+Zuletzt müssen die entstandenen Fehlermatrizen nur noch der liste hinzugefügt werden, welche dann an die nächste Schicht weitergegeben wird.  
+\begin{lstlisting}[language=Java]
+            dXdL.add(error);
+            l++;
+        }
+        if(previousLayer != null){
+            previousLayer.backPropagation(dXdL);
+        }
+    }
+\end{lstlisting}
+
+Für den Fall, dass die eingehenden Fehler keine liste, sondern eine einfaches Array ist, also zum Beispiel weil die nächste Schicht eine Fully Connected Layer ist, erstellt man noch eine "backPropagation" Methode:
+
+\begin{lstlisting}[language=Java]
+    public void backPropagation(double[] dLdO) {
+        List<double[][]> matrixList = vectorToMatrix(dLdO, getOutputLength(), getOutputRows(), getOutputCols());
+        backPropagation(matrixList);
+    }
+\end{lstlisting}
 
 \cleardoublepage
 \section{Unterstützungs Templates}

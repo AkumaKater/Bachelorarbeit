@@ -34,8 +34,6 @@ public class FullyConnectedLayer extends Layer{
         CostSteigungB = new double[numOutputNodes];
     }
 
-
-
     private double CostAbleitung(double activation, double expectedOutput) {
         return 2 * (activation - expectedOutput);
     }
@@ -50,7 +48,8 @@ public class FullyConnectedLayer extends Layer{
         return nodeValues;
     }
 
-    public double[] CalculateHiddenLayerNodeValues(FullyConnectedLayer oldLayer, double[] nodeValues) {
+    public double[] CalculateHiddenLayerNodeValues(double[] nodeValues) {
+        FullyConnectedLayer oldLayer = (FullyConnectedLayer)nextLayer;
         double[] newNodeValues = new double[numOutputNodes];
         Activation ac = Activation.geActivation();
         for (int i = 0; i < numOutputNodes; i++) {
@@ -111,22 +110,30 @@ public class FullyConnectedLayer extends Layer{
         return nextLayer.getOutput(activations);
     }
 
-    @Override
-    public void backPropagation(double[] dLdO) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'backPropagation'");
+    public void backPropagation(double[] expectedOutputs) {
+        double[] nodeValues = expectedOutputs;
+        if (nextLayer == null) {
+            nodeValues = CalculateOutputLayerNodeValues(expectedOutputs);
+        } else {
+            nodeValues = CalculateHiddenLayerNodeValues(nodeValues);
+
+            UpdateGradients(nodeValues);
+    
+            if (previousLayer != null) {
+                previousLayer.backPropagation(nodeValues);
+            }
+    
+        }
     }
 
     @Override
     public void backPropagation(List<double[][]> dLdO) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'backPropagation'");
+        backPropagation(matrixToVector(dLdO));
     }
 
     @Override
     public int getOutputLength() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOutputLength'");
+        return numOutputNodes;    
     }
 
     @Override
