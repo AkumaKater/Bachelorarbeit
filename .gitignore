@@ -1,1 +1,12 @@
 LaTeX/.Bachelorarbeit.tex.swp
+# Ignoriere den bin-Ordner
+bin/
+
+# Ignoriere alle Dateien mit der Erweiterung .class
+*.class
+
+# Ignoriere den Ausgabe-Ordner
+FFN-Ausgabe/
+
+# Ignoriere alle Dateien mit der Erweiterung .html
+*.html
