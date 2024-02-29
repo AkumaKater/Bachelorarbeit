@@ -21,7 +21,7 @@ public class FullyConnectedByRae extends Layer {
     }
 
     public double[] FullyConnectedForwardPass(double[] input){
-        
+        return input;
     }
 
     @Override
