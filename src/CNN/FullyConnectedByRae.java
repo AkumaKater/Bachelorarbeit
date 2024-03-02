@@ -10,66 +10,111 @@ public class FullyConnectedByRae extends Layer {
     double[][] weights;
     int inLength;
     int outLength;
+    double learnRate;
 
-    public FullyConnectedByRae(int inLength, int outLength, Long SEED) {
+    private double[] lastZ;
+    private double[] lastInput;
+
+    public FullyConnectedByRae(int inLength, int outLength, Long SEED, double learnRate) {
         this.inLength = inLength;
         this.outLength = outLength;
         this.SEED = SEED;
+        this.learnRate = learnRate;
 
         weights = new double[inLength][outLength];
         setRandomWeights();
     }
 
     public double[] FullyConnectedForwardPass(double[] input){
-        return input;
+        lastInput = input;
+        double[] Z = new double[outLength];
+        double[] a = new double[outLength];
+        for(int i=0; i<inLength; i++){
+            for(int j=0; j<outLength;j++){
+                Z[j] += input[i]*weights[i][j];
+            }
+        }
+
+        lastZ = Z;
+
+        for(int i=0; i<inLength; i++){
+            for(int j=0; j<outLength;j++){
+                a[j] = Sigmoid(Z[j]);
+            }
+        }
+        return a;
     }
 
     @Override
     public double[] getOutput(List<double[][]> input) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOutput'");
+        double[] vector = matrixToVector(input);
+        return getOutput(vector);
     }
 
     @Override
     public double[] getOutput(double[] input) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOutput'");
+        double[] ForwardPass = FullyConnectedForwardPass(input);
+        if(nextLayer != null){
+            return nextLayer.getOutput(ForwardPass);
+        }else{
+            return ForwardPass;
+        }
     }
 
     @Override
     public void backPropagation(double[] dLdO) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'backPropagation'");
+        double[] dLdX = new double[inLength];
+        double d0dZ;
+        double dzdw;
+        double dLdw;
+        double dzdx;
+
+        for(int k=0; k<inLength; k++){
+
+            double dLdX_sum = 0;
+
+            for(int j=0; j<outLength; j++){
+                d0dZ = SigmoidAbleitung(lastZ[j]);
+                dzdw = lastInput[k];
+                dzdx = weights[k][j];
+
+                dLdw = dLdO[j] * d0dZ * dzdw;
+
+                weights[k][j] -= dLdw*learnRate;
+
+                dLdX_sum += dLdw = dLdO[j] * d0dZ * dzdx;
+            }
+            dLdX[k] = dLdX_sum;
+        }
+        if(previousLayer!= null){
+            previousLayer.backPropagation(dLdX);
+        }
     }
 
     @Override
     public void backPropagation(List<double[][]> dLdO) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'backPropagation'");
+        double[] vector = matrixToVector(dLdO);
+        backPropagation(vector);
     }
 
     @Override
     public int getOutputLength() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOutputLength'");
+        return 0;
     }
 
     @Override
     public int getOutputRows() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOutputRows'");
+        return 0;
     }
 
     @Override
     public int getOutputCols() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOutputCols'");
+        return 0;
     }
 
     @Override
     public int getOutputElements() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOutputElements'");
+        return outLength;
     }
 
     public void setRandomWeights(){
@@ -81,5 +126,30 @@ public class FullyConnectedByRae extends Layer {
             }
         }
     }
+
+    //Die Sigmoid Funktion
+    public double Sigmoid(double weightedInput) {
+        return 1.0 / (1 + Math.exp(-weightedInput));
+    }
+    //Die Ableitung der Sigmoid Funktion
+    public double SigmoidAbleitung(double weightedInput) {
+        double activation = Sigmoid(weightedInput);
+        return activation * (1.0 - activation);
+    }
+    
+    public double ReLu(double weightedInput) {
+        if (weightedInput <= 0)
+        return 0.0;
+    else
+        return weightedInput;
+    }
+        
+    public double ReLuAbleitung(double weightedInput) {
+        if (weightedInput <= 0)
+            return 0.01; //Leak Value, um Tote bereiche zu vermeiden. Vermutlich bei Sigmoid kein Problem
+        else
+            return 1.0;
+    }
+    
     
 }
