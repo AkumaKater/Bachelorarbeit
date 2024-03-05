@@ -1,4 +1,4 @@
-package CNN;
+package CNN.layers;
 
 import java.util.List;
 import java.util.Random;
@@ -64,7 +64,7 @@ public class FullyConnectedByRae extends Layer {
     @Override
     public void backPropagation(double[] dLdO) {
         double[] dLdX = new double[inLength];
-        double d0dZ;
+        double dOdZ;
         double dzdw;
         double dLdw;
         double dzdx;
@@ -74,15 +74,15 @@ public class FullyConnectedByRae extends Layer {
             double dLdX_sum = 0;
 
             for(int j=0; j<outLength; j++){
-                d0dZ = SigmoidAbleitung(lastZ[j]);
+                dOdZ = SigmoidAbleitung(lastZ[j]);
                 dzdw = lastInput[k];
-                dzdx = weights[k][j];
+                dzdx = weights[k][j]; 
 
-                dLdw = dLdO[j] * d0dZ * dzdw;
+                dLdw = dLdO[j] * dOdZ * dzdw;
 
                 weights[k][j] -= dLdw*learnRate;
 
-                dLdX_sum += dLdw = dLdO[j] * d0dZ * dzdx;
+                dLdX_sum += dLdO[j] * dOdZ * dzdx;
             }
             dLdX[k] = dLdX_sum;
         }

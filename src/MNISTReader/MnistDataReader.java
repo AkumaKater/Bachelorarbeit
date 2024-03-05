@@ -4,12 +4,13 @@ import java.io.*;
 
 public class MnistDataReader {
 
-    public MnistMatrix[] readData(String dataFilePath, String labelFilePath) throws IOException {
+    public MnistMatrix[] readData(String dataFilePath, String labelFilePath){
         return readData(dataFilePath, labelFilePath, false);
     }
 
-    public MnistMatrix[] readData(String dataFilePath, String labelFilePath, boolean Log) throws IOException {
+    public MnistMatrix[] readData(String dataFilePath, String labelFilePath, boolean Log) {
 
+        try {
         DataInputStream dataInputStream = new DataInputStream(
                 new BufferedInputStream(new FileInputStream(dataFilePath)));
         int magicNumber = dataInputStream.readInt();
@@ -51,5 +52,10 @@ public class MnistDataReader {
         dataInputStream.close();
         labelInputStream.close();
         return data;
+            
+    } catch (Exception e) {
+        System.out.println(e.getMessage());
+        return null;
+    }
     }
 }

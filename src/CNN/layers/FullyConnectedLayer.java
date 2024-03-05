@@ -1,4 +1,4 @@
-package CNN;
+package CNN.layers;
 
 import FFNetwork.NNMath;
 
@@ -133,24 +133,21 @@ public class FullyConnectedLayer extends Layer{
 
     @Override
     public int getOutputLength() {
-        return numOutputNodes;    
+        return 0;
     }
 
     @Override
     public int getOutputRows() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOutputRows'");
+        return 0;
     }
 
     @Override
     public int getOutputCols() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOutputCols'");
+        return 0;
     }
 
     @Override
     public int getOutputElements() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOutputElements'");
+        return numInputNodes * numOutputNodes;
     }
 }

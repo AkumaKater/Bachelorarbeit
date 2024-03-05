@@ -5,11 +5,23 @@ import java.util.Arrays;
 
 import MNISTReader.MNISTHTML;
 import MNISTReader.MnistBuffer;
+import MNISTReader.MnistDataReader;
 import MNISTReader.MnistMatrix;
 
 public class Main {
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) {
+        System.out.println("Starting Data Loading...");
+
+        String dataHome = "src/MNIST/archive/";// train-labels.idx1-ubyte
+        MnistMatrix[] mnistMatrix = new MnistDataReader().readData(dataHome + "train-images.idx3-ubyte",
+                dataHome + "train-labels.idx1-ubyte");
+        MnistMatrix[] mnistMatrix2 = new MnistDataReader().readData(dataHome + "t10k-images.idx3-ubyte",
+                dataHome + "t10k-labels.idx1-ubyte");
+        
+    }
+
+    public static void mainDeprecated(String[] args) throws Exception{
         ConfigLoader config = ConfigLoader.getConfig();
         int splitIndex = config.getSplitIndex(); // 60.000
         int TrainingCycles = config.getTrainingCycles();
