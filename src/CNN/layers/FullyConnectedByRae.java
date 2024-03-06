@@ -62,11 +62,11 @@ public class FullyConnectedByRae extends Layer {
     }
 
     @Override
-    public void backPropagation(double[] dLdO) {
+    public void backPropagation(double[] dCda) {
         double[] dLdX = new double[inLength];
-        double dOdZ;
-        double dzdw;
-        double dLdw;
+        double dZdw;
+        double dadZ;
+        double dCdw;
         double dzdx;
 
         for(int k=0; k<inLength; k++){
@@ -74,15 +74,15 @@ public class FullyConnectedByRae extends Layer {
             double dLdX_sum = 0;
 
             for(int j=0; j<outLength; j++){
-                dOdZ = SigmoidAbleitung(lastZ[j]);
-                dzdw = lastInput[k];
+                dadZ = SigmoidAbleitung(lastZ[j]);
+                dZdw = lastInput[k];
                 dzdx = weights[k][j]; 
 
-                dLdw = dLdO[j] * dOdZ * dzdw;
+                dCdw = dZdw * dadZ * dCda[j];
 
-                weights[k][j] -= dLdw*learnRate;
+                weights[k][j] -= dCdw*learnRate;
 
-                dLdX_sum += dLdO[j] * dOdZ * dzdx;
+                dLdX_sum += dzdx * dadZ * dCda[j];
             }
             dLdX[k] = dLdX_sum;
         }
@@ -91,9 +91,26 @@ public class FullyConnectedByRae extends Layer {
         }
     }
 
+    public void backPropagation2(double[] dCda) {
+        double dZdw;
+        double dadZ;
+        double dCdw;
+
+        for(int k=0; k<inLength; k++){
+            for(int j=0; j<outLength; j++){
+                dadZ = SigmoidAbleitung(lastZ[j]);
+                dZdw = lastInput[k];
+
+                dCdw = dZdw * dadZ * dCda[j];
+
+                weights[k][j] -= dCdw*learnRate;
+            }
+        }
+    }
+
     @Override
-    public void backPropagation(List<double[][]> dLdO) {
-        double[] vector = matrixToVector(dLdO);
+    public void backPropagation(List<double[][]> dCda) {
+        double[] vector = matrixToVector(dCda);
         backPropagation(vector);
     }
 
@@ -111,7 +128,7 @@ public class FullyConnectedByRae extends Layer {
     public int getOutputCols() {
         return 0;
     }
-
+  
     @Override
     public int getOutputElements() {
         return outLength;
@@ -137,6 +154,7 @@ public class FullyConnectedByRae extends Layer {
         return activation * (1.0 - activation);
     }
     
+    //Die ReLu Funktion
     public double ReLu(double weightedInput) {
         if (weightedInput <= 0)
         return 0.0;
@@ -144,6 +162,7 @@ public class FullyConnectedByRae extends Layer {
         return weightedInput;
     }
         
+    //Die Ableitung der ReLu Funktion
     public double ReLuAbleitung(double weightedInput) {
         if (weightedInput <= 0)
             return 0.01; //Leak Value, um Tote bereiche zu vermeiden. Vermutlich bei Sigmoid kein Problem
@@ -153,3 +172,5 @@ public class FullyConnectedByRae extends Layer {
     
     
 }
+
+

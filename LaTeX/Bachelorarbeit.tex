@@ -4,6 +4,9 @@
 \usepackage{xcolor}
 \usepackage{float}
 \usepackage{url}
+\usepackage{amsmath}
+
+\newcommand{\bracenom}{\genfrac{\lbrace}{\rbrace}{0pt}{}}
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{RGB}{4,118,219}
@@ -141,7 +144,7 @@ Nach dieser Schleife sind die Inputs mit den Gewichten verrechnet, aber die Acti
 Der Array der zurückgegeben wird, ist der Komplette berechnete Output, und kann so an die nächste Schicht weitergeleitet werden. Im Convolutional Network kommen mehrere Schichten Fully Connected layer immer ans Ende. Die Convolution Layer und die MaxPool Layer sind auf die Erkennung von Features in Bildern und auf die Komprimierung und Verdichtung relevanter Daten in den Bildern Spezialisiert. Daher macht es keinen Sinn, diese Schichten nach einem Fully Connected Layer einzusetzten. Das Bild kann aus den Ausgaben einer Fully Connected Layer nicht wieder rekonstruiert werden, und ist daher für die anderen Schichten nicht mehr nutzbar. Es kann also davon ausgegangen werden, dass nach einem Fully Connected Layer nur noch weitere Fully Connected Layer auftreten werden. 
 Außerdem soll hier angemerkt werden, dass die Convolution und Pool Layer zwar die Bilderkennung Positiv beeinflussen, simple Netzwerke bereits rein und ausschließlich mit Fully Connected Layeren aufgebaut werden können. Diese sind zwar sehr anfällig auf leichte Veränderunegn der Inputs, und die Genauigkeit lässt daher ein wenig zu wünschen übrig, aber durchaus verlässliche Ergebnisse können damit schon erzielt werden.
 
-Da die Outputs der Fully Connected Layer keine direkten rückschlüsse auf die Bilder zulassen, die zu Anfang in das netzwerk gegeben werden, wird bei den in der Abstrakten Klasse definierten Methoden zur Rückgabe der verschiedenen Parameter auch anders verfahren, als in den anderen Layer Klassen. Die anderen Layer klassen müssen auskunft darüber geben können, wie viele Output bilder sie erzeugen, und welche Dimensionen diese besitzen. Zum Beispiel gibt die Max pool Layer zwar komprimierte Bilder zurück, das heißt dass die Dimensionen kleiner geworden sind. Allerdings werden alle bilder, die in die Schicht eintreten, mit jedem Filter Fenster verrechnet, welches die Schicht besitzt. Das heißt die menge der Output Bilder ist die Menge der Input Bilder mal die Menge der Filter. Diese informationen sind für die nachfolgenden Schichten von großem Wert. Bei den Fully Connected layern können nur Fully Connected layer folgen, also ist auch nur die Menge der Inputs wichtig, da Fully Connected Layer die Inputs als ein einziges 1-Dimensionales Array betrachten. Also muss nur die "getOutputElements" Methode sinnvoll betrachtet werden, diese gibt einfach die "outLength" Variable zurück. Alle anderen get-Methoden können 0 zurück geben.
+Da die Outputs der Fully Connected Layer keine direkten rückschlüsse auf die Bilder zulassen, die zu Anfang in das netzwerk gegeben werden, wird bei den in der Abstrakten Klasse definierten Methoden zur Rückgabe der verschiedenen Parameter auch anders verfahren, als in den anderen Layer Klassen. Die anderen Layer Klassen müssen Auskunft darüber geben können, wie viele Output Bilder sie erzeugen, und welche Dimensionen diese besitzen. Zum Beispiel gibt die Max Pool Layer zwar komprimierte Bilder zurück, das heißt dass die Dimensionen kleiner geworden sind. Allerdings werden alle Bilder, die in die Schicht eintreten, mit jedem Filter Fenster verrechnet, welches die Schicht besitzt. Das heißt die menge der Output Bilder ist die Menge der Input Bilder mal die Menge der Filter. Diese Informationen sind für die nachfolgenden Schichten von großem Wert. Bei den Fully Connected layern können nur Fully Connected layer folgen, also ist auch nur die Menge der Inputs wichtig, da Fully Connected Layer die Inputs als ein einziges 1-Dimensionales Array betrachten. Also muss nur die "getOutputElements" Methode sinnvoll betrachtet werden, diese gibt einfach die "outLength" Variable zurück. Alle anderen get-Methoden können 0 zurück geben.
 
 \begin{lstlisting}[language=Java] 
     @Override
@@ -151,13 +154,170 @@ Da die Outputs der Fully Connected Layer keine direkten rückschlüsse auf die B
 \end{lstlisting} 
 
 \subsection{Backpropagation im Fully Connected Layer}
-Ja Hahaha hier kommt Text hin lalalal
+Backpropagation ist der Prozess, den Fehler, den ein Netzwerk macht zu Quantifizieren, und dann über alle Schichten zurückzuverfolgen. Dabei wird durch das Ableiten der Fehlerfunktion festgestellt, wie die Gewichte oder andere veränderbaren Attribute angepasst werden müssen, um sich dem Fehlerminimum zu nähern. Das Fehlerminimum wird durch kleine, inkrementelle Schritte angepeilt. Diese Schrittweise Annäherung nennt man Gradient Descent. 
 
-Ich bin ein harlunke Har Har Har
+Das Gradient Descent Verfahren funktioniert so, dass ein gegebenes Gewicht $w^0$ in die Fehlerfunktion $C_0$ eingesetzt wird, also die Funktion, die den Fehler quantifiziert, den das Netzwerk bei der Klassifizierung eines Bildes gemacht hat. Durch die Ableitung dieser Funktion an der gegebenen Stelle, kann eine Steigung berechnet werden, welche die Richtung angibt, in die das Gewicht angepasst werden sollte, um sich dem Fehlerminimum zu nähern. 
+Das heißt also, wenn 
 
-Ein echter Pirat wenn du so willst du Troll
+$C_0'(w^0)>0$, dann sollte das Gewicht $w^1$ ein Stück weiter links von $w^0$ sein, und wenn
 
-Berta der troll war ein echt wiederliches Ding, ein Troll von gigantischen ausmaßen in all den falschen stellen, Feter bauch, Fette nase Riesige Ohren, Riesige Füße, und Riesige Zähne, zumindest die Huaer, die noch übrig waren.
+$C_0'(w^0)<0$, dann sollte das Gewicht $w^1$ ein Stück weiter rechts von $w^0$ sein.
+
+Das lässt sich auch algorithmisch notieren:
+
+$$w^k:=w^{k-1}-\lambda C'(w^{k-1}), k \geq 1$$
+
+wobei $\lambda > 0$ ist, denn $\lambda$ entspricht der Learnrate, also dem Skalierungsmaß für die Inkremente, in denen die gewichte angepasst werden. Ohne das Skalierungsmaß wären die Anpassungen zu groß, und würden die Fehlertiefpunkte regelmäßig weit überspringen, anstatt sich ihnen anzunähern [1, S.114 ff.]. 
+
+Zuerst sollte man die Fehlerfunktion betrachten. 
+Es sei der letzte Output aus dem Netzwerk genannt $O_L$. Außerdem werden die Targets für das Bild benötigt. Um ein Neuronales Netzwerk zu trainieren, braucht man nicht nur die zu klassifizierenden Inputs, diese Inputs müssen auch mit Labeln versehen sein. Ein Label gibt an, was auf dem Bild zu sehen ist. Das Ziel ist es, dass das Netzwerk eine ausgabe macht, die sich möglichst wenig von dem Label unterscheidet. Hier kommen die targets ins Spiel. Im Prinzip erstellt man ein Array, welches für jede Antwortmöglichkeit des Netzwerkes ein Feld besitzt. Das Feld, das dem label entspricht, wird auf 1 gesetzt, alle anderen Felder werden auf 0 gesetzt. Dies sind die Targets $T$.
+Um nun die Loss Funktion, also die Fehlerfunktion zu berechnen, müsste man nur die Targets von den Outputs abziehen, allerdings müssen die Ergebnisse noch Quadriert werden. Das hat zwei Vorteile, der erste Vorteil ist, dass Fehler dadurch betont werden. Große Fehler haben dadurch einen noch größeren einfluss. Das hilft, sich nicht zu schnell oder zu langsam dem Fehlerminimum anzupassen. Der zweite Vorteil ist der dass durch das Quadrieren alle Fehler Positiv werden. Alle Fehler müssen nachher summiert werden. Wenn es Positive und negative Fehler gibt, würden sich diese gegenseitig aufheben. 
+Alles in allem sieht die Fehlerfunktion für dieses Netzwerk dann so aus:
+
+$$C_0 = (O_L - T)^2$$
+
+Nun gilt es, herauszufinden, wie sich die Fehlerfunktion ändert, im Bezug auf die Gewichte und anderen veränderbaren Parameter im Netzwerk.
+
+Dazu kann man Notieren dass die Ableitung von $C_0$ gesucht ist, im Bezug auf eine Änderung an $w_L$, damit gemeint sind die Gewichte aus der letzten Schicht.
+
+$$\frac{\delta C_0}{\delta w_L}$$
+
+Diese Ableitung lässt sich dank der Kettenregel weiter aufschlüsseln, sodass einzelne Komponenten entstehen, die mit Code berechnet werden können.
+
+$$\frac{\delta C_0}{\delta w_L}=
+\frac{\delta Z_L}{\delta w_L}*
+\frac{\delta a_L}{\delta Z_L}*
+\frac{\delta C_0}{\delta a_L}$$
+
+Diese Terme können einzeln entschlüsselt und im Code verwendet werden. Der erste Term ist
+
+$$\frac{\delta Z_L}{\delta w_L}$$
+
+und beschreibt die Ableitung der Berechnung in den Knoten bevor die Transferfunktion, also zum Beispiel die Sigmoid Funktion eingesetzt wurde, im Bezug zu den Gewichten der letzten Schicht.
+Diese Berechnung sieht erst einmal so aus:
+Jede Schicht besitzt eine Menge an Knoten, die den Neuronen des Gehirns nachempfunden sind. Ein Knoten ist mit allen Inputs verknüpft, also mit dem Bild das in die erste Schicht geleitet wird, oder alle ausgaben der vorrigen Schicht, wenn es sich nicht um die erste Schicht handelt. Diese Verbindungen sind gewichtet, um die stärke der Synaptischen Verknüpfung zwischen den Neuronen darzustellen. Diese Gewichte werden bei der Backpropagation angepasst. Im Netzwerk werden die Gewichte in einer Matrix gespeichert, hier heißt sie "weights". 
+Um einen einzelnen Knoten k zu berechnen iteriert man über alle Inputs, multipliziert diese mit dem jeweiligen Gewicht zwischen dem input und dem Knoten, also $w_{ik}$, und summiert die Ergebnisse:
+
+
+$$Z_{Lk}=\sum_{i = 1}^{n}w_{ik}*x_i$$
+
+Im Prinzip muss also nur der Term $w_{ik}*x_i$ im Bezug auf die Gewichte abgeleitet werden, um die Änderungsrate berechnen zu können, wenn die Gewichte angepasst werden.
+
+$$\frac{\delta Z_L}{\delta w_L}=x_i$$
+
+Wie wir sehen entspricht x einfach den Inputs aus der vorigen Schicht. Diese sollten also beim Forwardpass auf jeden Fall immer zwischengespeichert werden, im hier in der Backpropagagtion benutzt werden zu können. Dies wurde im letzten Kapitel schon vorbereitet.
+
+Der nächste Term 
+$$\frac{\delta a_L}{\delta Z_L}$$ Beschäftigt sich mit dem Einfluss von $Z_L$ auf die Ableitung von der Activation Funktion. Es gibt verschiedene Transferfunktionen $T(x)$, und zwei werden besonders häufig verwendet. Zum einen die Sigmoid Funktion, zum anderen ReLu. 
+ReLu ist besonders leicht zu berechnen, und wird daher für schnelleres Lernen eingesetzt. Alle Werte unter 0 werden zu 0 Transformiert und ausgegeben, alle Werte über 0 werden so zurückgegeben, wie sie sind.
+
+$$
+T(x):=
+\left\{
+\begin{tabular}{l}
+0 für $x<0$ \\
+x für $x\geq 0$
+\end{tabular}
+\right\}
+:=T_1(x)
+$$
+
+Die Ableitung davon ist auch denkbar einfach, Unter 0 hat die x keinen einfluss, über 0 hat es einen direkten einfluss, also 1.
+
+$$
+T'(x):=
+\left\{
+\begin{tabular}{l}
+0 für $x<0$ \\
+1 für $x\geq 0$
+\end{tabular}
+\right\}
+:=T'_1(x)
+$$
+
+Etwas aufwändiger ist die Sigmoid Funktion, die auch in diesem Netzwerk verwendet werden soll. Die Sigmoid Funktion sieht so aus:
+
+$$\sigma (x)=\frac{1}{(1+e^{-x})}$$
+Und ihre Ableitung:
+$$\sigma '(x)=\sigma (x)(1-\sigma(x))$$
+
+TODO Es kann hier noch die Ableitung der Sigmoid erklärt werden, so wie Prof Lanz sich das gewünscht hat. Allerdings ist dies Extrem aufwändig, und nicht zu empfehlen...
+
+Hier ist der Code für die Sigmoid Funktion und ihre Ableitung:
+\begin{lstlisting}[language=Java] 
+    //Die Sigmoid Funktion
+    public double Sigmoid(double weightedInput) {
+        return 1.0 / (1 + Math.exp(-weightedInput));
+    }
+    //Die Ableitung der Sigmoid Funktion
+    public double SigmoidAbleitung(double weightedInput) {
+        double activation = Sigmoid(weightedInput);
+        return activation * (1.0 - activation);
+    }
+    
+\end{lstlisting} 
+
+Und hier ist die Relu Funktion mit ihrer Ableitung. Im Code sehr einfach umzusetzen:
+
+\begin{lstlisting}[language=Java] 
+    //Die ReLu Funktion
+    public double ReLu(double weightedInput) {
+        if (weightedInput <= 0)
+        return 0.0;
+    else
+        return weightedInput;
+    }
+        
+    //Die Ableitung der ReLu Funktion
+    public double ReLuAbleitung(double weightedInput) {
+        if (weightedInput <= 0)
+            return 0.01; //Leak Value, um Tote bereiche zu vermeiden. Vermutlich bei Sigmoid kein Problem
+        else
+            return 1.0;
+    }
+\end{lstlisting} 
+
+Nun kommen wir zum vorerst letzten Term:
+
+$$\frac{\delta C_0}{\delta a_L}$$
+
+gesucht ist die Ableitung der Cost oder Fehlerfunktion, im Bezug auf die Outputs der letzten Schicht im Netzwerk. Dies ist die Fehlerfunktion:
+
+$$C_0 = (O_L - T)^2$$
+
+Hierbei ist $O_L$ gleich $a_L$ des Netzwerkes.
+Die Ableitung hier ist einfach:
+
+$$\frac{\delta C_0}{\delta O_L} = 2(O_L - T)$$
+
+Damit sind alle Terme der letzten Schicht im Netzwerk geklärt, und können eingesetzt werden.
+Um im Code nachvollziehen zu können, welcher Wert was macht, nennen wir die Werte einfach genau so, wie sie geschrieben werden.
+
+
+$$\frac{\delta Z_L}{\delta w_L} \rightarrow dZdw $$ \\
+$$\frac{\delta a_L}{\delta Z_L} \rightarrow dadZ $$ \\
+$$\frac{\delta C_0}{\delta a_L} \rightarrow dCda $$ \\
+
+nachdem die Namenskonvention geklärt ist, können wir nun in den Code sehen.
+
+\begin{lstlisting}[language=Java] 
+    public void backPropagation2(double[] dCda) {
+        double dZdw;
+        double dadZ;
+        double dCdw;
+
+        for(int k=0; k<inLength; k++){
+            for(int j=0; j<outLength; j++){
+                dadZ = SigmoidAbleitung(lastZ[j]);
+                dZdw = lastInput[k];
+
+                dCdw = dZdw * dadZ * dCda[j];
+
+                weights[k][j] -= dCdw*learnRate;
+            }
+        }
+    }
+\end{lstlisting} 
 
 \section{Pooling Layer}
 Pooling Layer werden dazu verwendet, um das sogenannte Downsampling zu betreieben. Downsampling bedeutet einfach, dass eine geringere Auswahl an Daten weitergegeben werden.
@@ -243,7 +403,7 @@ Alternativ kann natürlich auch der Durchschnitt errechnet und ausgegeben werden
         return output;
     }
 \end{lstlisting}
-Im Code wurden die Methoden getOutputRows und getOutputCols schon verwendet, also müssen diese auch noch Implementiert werden. Die Formel dazu sieht folgendermaßen [1] aus:
+Im Code wurden die Methoden getOutputRows und getOutputCols schon verwendet, also müssen diese auch noch Implementiert werden. Die Formel dazu sieht folgendermaßen [2] aus:
 $$H_{out} = floor(1 + (H - pool\_height)/stride)$$
 $$W_{out} = floor(1 + (W - pool\_ width)/stride)$$
 
@@ -447,7 +607,8 @@ Im Laufe der Zeit sind die modernen Netzwerke immer komplexer geworden und liefe
 \sloppy
 \section{Quellen}
 \begin{itemize}
-\item 1. Alexey Kravets, "Forward and Backward propagation of Max Pooling Layer in Convolutional Neural Networks", URL: https://towardsdatascience.com/forward-and-backward-propagation-of-pooling-layers-in-convolutional-neural-networks-11e36d169bec
+\item 1. B. Lenze, Einführung in die Mathematik neuronaler Netze. Berlin: Logos Verlag; 2009.
+\item 2. Alexey Kravets, "Forward and Backward propagation of Max Pooling Layer in Convolutional Neural Networks", URL: https://towardsdatascience.com/forward-and-backward-propagation-of-pooling-layers-in-convolutional-neural-networks-11e36d169bec
 
 
 \item 2. T. Rashid, Neuronale Netze selbst programmieren - Ein verständlicher Einstieg mit Python. Paderborn: O’Reilly Verlag; 2017.
