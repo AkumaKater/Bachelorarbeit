@@ -5,6 +5,13 @@
 \usepackage{float}
 \usepackage{url}
 \usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{setspace} % Paket für Zeilenabstand
+
+\pagestyle{fancy}
+\fancyhf{}
+\chead{\thepage} % Seitenzahl zentriert oben
+\renewcommand{\headrulewidth}{0pt} % Keine Kopfzeilenlinie
 
 \newcommand{\bracenom}{\genfrac{\lbrace}{\rbrace}{0pt}{}}
 
@@ -13,6 +20,8 @@
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{RGB}{0,27,51}
 \definecolor{textcolour}{RGB}{38, 149, 245}
+
+
 
 \lstdefinestyle{mystyle}{
     backgroundcolor=\color{backcolour},   
@@ -32,6 +41,8 @@
     showtabs=false,                  
     tabsize=2
 }
+
+
 
 \usepackage{setspace}
 \onehalfspacing
@@ -57,16 +68,21 @@
     \addtolength{\topmargin}{-3cm}
     \addtolength{\textheight}{3cm}
 \usepackage{graphicx}
+
+\usepackage[left=4.5cm, right=1.5cm, top=3cm, bottom=2.5cm]{geometry}
+\setstretch{1.5} % Zeilenabstand von 1,5
+\setcounter{page}{-1}
 \begin{document}
 
 
 \maketitle
+\thispagestyle{empty}
 \cleardoublepage
 % \phantomsection
 \tableofcontents
+\thispagestyle{empty}
 \cleardoublepage
 % \phantomsection
-\thispagestyle{empty}
 
 
 
@@ -298,7 +314,7 @@ $$\frac{\delta Z_L}{\delta w_L} \rightarrow dZdw $$ \\
 $$\frac{\delta a_L}{\delta Z_L} \rightarrow dadZ $$ \\
 $$\frac{\delta C_0}{\delta a_L} \rightarrow dCda $$ \\
 
-nachdem die Namenskonvention geklärt ist, können wir nun in den Code sehen.
+nachdem die Namenskonvention geklärt ist, kann der Code erstellt werden:
 
 \begin{lstlisting}[language=Java] 
     public void backPropagation2(double[] dCda) {
