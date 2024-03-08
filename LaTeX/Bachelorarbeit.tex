@@ -324,8 +324,8 @@ nachdem die Namenskonvention geklärt ist, kann der Code erstellt werden:
 
         for(int k=0; k<inLength; k++){
             for(int j=0; j<outLength; j++){
-                dadZ = SigmoidAbleitung(lastZ[j]);
                 dZdw = lastInput[k];
+                dadZ = SigmoidAbleitung(lastZ[j]);
 
                 dCdw = dZdw * dadZ * dCda[j];
 
@@ -334,6 +334,126 @@ nachdem die Namenskonvention geklärt ist, kann der Code erstellt werden:
         }
     }
 \end{lstlisting} 
+
+Um die Methode Modular zu halten, wird die Ableitung vom Error außerhalb der Methode berechnet, und als "dCda", also Ableitung der Cost Funktion im Bezug auf die Outputs der letzten Schicht, an die Methode übergeben. Dadurch wird die Backpropagation angestoßen. Als nächstes werden die Variablen aufgestellt. Das Ziel ist es, "dCdw", also die Cost Funktion im Bezug auf die Gewichte zu ermitteln. 
+In einer verschachtelten Schleife über alle Gewichte werden die Variablen zunächst belegt.
+Warum über alle Gewichte? Weil die Änderung für jedes Gewicht berechnet werden soll. 
+"dZdw" Entspricht dem letzten Input aus der vorletzten Schicht. "dadZ" ist das Ergebnis der Ableitung der Transferfunktion, hier Sigmoid, im Bezug auf die gewichteten Inputs der vorletzten Schicht.
+Um also das Ergebnis der Ableitung der Cost Funktion im Bezug auf die Gewichte der letzten Schicht im Netzwerk zu berechnen, müssen diese Zwischenergebnisse nur noch multipliziert werden. Das heißt die entsprechenden Werte von "dCda", die übergeben wurden, multipliziert mit "dZdw" und "dadZ".
+Das Ergebnis dieser Rechnung ist die Steigung der Fehlerfunktion, an der Stelle, an der das jeweilige Gewicht eingesetzt wurde. Wenn die Steigung Positiv ist, sollte das Gewicht verringert werden, also abgezogen werden, um sich dem Fehlerminimum anzunähern.
+Wenn die Steigung Negativ ist, liegt das Fehlerminimum voraus, also sollte das Gewicht vergrößert werden.
+Wichtig an dieser Stelle ist noch zu beachten, dass die berechnete Änderungsrate zu groß ist, und mit der LearnRate multipliziert werden muss, bevor der Wert von den Gewichten abgezogen wird. Es könnte sonst dazu kommen, dass das Fehlerminimum übersprungen wird.
+
+Dies ist de vollständige Berechnng der Anpassungs der Gewichte in der letzten Schicht. Aber wie wird nun die vorletzte Schicht angepasst? und die Schicht davor?
+Im Prinzip muss der Fehler weiter durch das Netzwerk zurückgereicht werden, und in jeder Schicht, die anpassbare Parameter hat, müssen diese Parameter so angepasst werden, wie sie für den Fehler verantwortlich waren.
+
+Dies kann vollständig modular aufgebaut werden, sodass eine völlig variable anzahl an Schichten möglich werden. Wenn man die Ableitung der Cost Funktion im Bezug auf die Gewichte der letzten Schicht, und die Ableitung der Cost Funktion im bezug auf die Gewichte der Vorletzten Schicht miteinander vergleicht, so fällt auf, dass es Terme gibt, die zum Teil völlig gleich sind, das es einen term gibt der sich verändert, und dass es zwei neue Terme gibt, die sich von alten termen nur darin unterscheiden, dass sie Inputs uas der Vorletzten, anstatt aus der letzten Schicht benötigen.
+
+Diesmal wird die Änderungsrate der Cost Funktion $C$ gesucht, in Abhängigkeit von den Gewichten der vorletzten Schicht, $w_{(L-1)}$.
+
+$$\frac{\delta C_0}{\delta w_{(L-1)}}=
+\frac{\delta Z_{(L-1)}}{\delta w_{(L-1)}}*
+\frac{\delta a_{(L-1)}}{\delta Z_{(L-1)}}*
+\frac{\delta Z_L}{\delta a_{(L-1)}}*
+\frac{\delta a_L}{\delta Z_L}*
+\frac{\delta C_0}{\delta a_L}*
+$$
+
+Die letzten beiden Terme sind schon aus der vorherigen Rechnung bekannt.
+
+$$\frac{\delta a_L}{\delta Z_L}$$
+$$\frac{\delta C_0}{\delta a_L}$$
+
+Damit gemeint sind die Ableitung der Cost Funktion, sowie die Ableitung der Activation Funktion. Diese können bereits in der Letzten Schicht verrechnet werden, und an die vorletzte Schicht übergeben werden. Außerdem kann die Ableitung des Dritten Terms ebenfalls in der letzten Schicht berechnet und übergeben werden. Dieser Unterscheidet sich von dem dritten Term in den Berechnungen für die letzte Schicht. Anstatt die Änderungsrate im Bezug auf Änderungen an den Gewichten, berechnet dieser Term im Bezug auf die Änderungen an den Inputs aus der vorherigen Schicht.
+
+$$\frac{\delta Z_L}{\delta a_{(L-1)}}$$
+
+Die Ableitung der Berechnung der Gewichteten Outputs der letzten Schicht, im Bezug auf die Inputs der vorletzten Schicht. Die Änderungsrate hängt hierbei völlig von den Gewichten der letzten Schicht ab, also gilt:
+
+$$\frac{\delta Z_L}{\delta a_{(L-1)}} = w_L$$
+
+Wenn diese drei Terme bereits in der Letzten Schicht berechnet werden, können sie ohne weiteres an die vorletzte Schicht übergeben werden. Nach diesem Prinzip können beliebig viele Schichten aneinander gereiht werden, und sich gegenseitig ihre berechneten Werte durchreichen. 
+
+Die bisherigen Werte kann man zusammenfassen:
+
+$$
+\frac{\delta Z_L}{\delta a_{(L-1)}}*
+\frac{\delta a_L}{\delta Z_L}*
+\frac{\delta C_0}{\delta a_L}
+= \frac{\delta C_0}{\delta a_{(L-1)}}
+$$
+
+$\frac{\delta C_0}{\delta a_{(L-1)}}$ kann einfach an die nächste Backpropagation Methode übergeben werden.
+
+Dort, in der vorletzten Schicht, wird das gleiche getan, wie zuvor in der Letzten Schicht. Die Eingabe, "dCda", wird mit diesen Termen verrechnet:
+
+$$
+\frac{\delta Z_{(L-1)}}{\delta w_{(L-1)}}*
+\frac{\delta a_{(L-1)}}{\delta Z_{(L-1)}}*
+\frac{\delta C_0}{\delta a_{(L-1)}}
+$$
+
+Diese Terme sind im Prinzip die gleichen wie zuvor, nur auf die aktuelle Schicht gemünzt. 
+
+Um eine kleine Zusammenfassung zu schaffen:
+
+Jede Schicht muss 3 Terme miteinander multiplizieren. 
+
+Der erste Term beschreibt die ableitung der Cost Funktion im Bezug auf die Outputs der aktuellen Schicht. Bei der letzten Schicht im Netzwerk, also der ersten Schicht im Backpropagation Verfahren, ist das einfach die Ableitung der Cost Funktion, welche zum berechnen die Outputs des Netzwerks, und die erwarteten Werte der Inputs des Netzwerkes benötigt. In allesn weiteren Schichten handelt es sich dabei um errechnete Werte aus den anderen Schichten, welche übergeben werden. Ab hier werden sie "dCd0" genannt, da der Name "dZda" anderweitig noch gebraucht wird.
+
+Der 2 Term sieht in jeder Schicht gleich aus, es kommt hierbei lediglich auf die Inputs an. Es handelt sich um die ableitung der Activation Funktion, im Bezug auf die Gewichteten Inputs.
+
+$$\frac{\delta a}{\delta Z}$$
+
+Dieser Schritt wurde zuvor schon implementiert.
+Übrig bleibt also nur der letzte Term. diesen gibt es in zwei ausführungen, und zwar einmal um die Gewichte der aktuellen Schicht anzupassen, und einmal um die Werte zu berechnen, die an die nächste Schicht im Backpropagation Verfahren gereicht werden sollen.
+Um die Gewichte anzupassen, benötigt man hierbei die Inputs aus der letzten Schicht, und auch dies wurde bereits Implementiert. Es bleibt nur noch die Berechnung für die nächste Schicht. Wie weiter oben schon festgestellt, handelt es sich dabei um die gewichte der Aktuellen Schicht. 
+Nun zur Form. Es geht immer noch darum, die Fehler, die das Netzwerk gemacht hat, an die Schichten weiterzureichen. Daher muss ein Vektor erstellt werden, der den Outputs der vorherigen Schicht entspricht, und die Fehler enthält, die von der Schicht verursacht wurden.
+Dieser Vektor wird nun als "dCda" erstellt, denn er soll immerhin die Änderngsraten enthalten, die durch die Ableitung der Cost Funktion im Bezug auf die Outputs "a" der vorherigen Schicht berechnet wurden. Eine weiter neue Variable ist der double "dZda", welcher schlichtweg das Gewicht enthält, welches gerade angepasst werden soll.
+
+\begin{lstlisting}[language=Java]
+    @Override
+    public void backPropagation(double[] dCd0) {
+        double[] dCda = new double[inLength];
+        double dZdw;
+        double dadZ;
+        double dCdw;
+        double dZda;
+\end{lstlisting} 
+In der äußeren Schleife wird nun eine Variable "dCda\_sum" geführt. In dieser werden alle Änderungsraten der Cost Funktion im Bezug auf die Inputs der letzten Schicht aufsummiert. Dieser Wert wird für jeden input der aktuellen Schicht erstellt und im Vektor "dCda" gespeichert.
+\begin{lstlisting}[language=Java]  
+        for(int k=0; k<inLength; k++){
+
+            double dCda_sum = 0;
+
+            for(int j=0; j<outLength; j++){
+                dZdw = lastInput[k];
+                dadZ = SigmoidAbleitung(lastZ[j]);
+\end{lstlisting} 
+In der inneren Schleife werden nun auch die entsprechenden Gewichte festgehalten. Wie zuvor werden nun die Änderungsraten für die aktuellen gewichte berechnet und werden angewandt.
+\begin{lstlisting}[language=Java]  
+                dZda = weights[k][j]; 
+
+                dCdw = dZdw * dadZ * dCd0[j];
+
+                weights[k][j] -= dCdw*learnRate;
+\end{lstlisting} 
+Zuletzt wird aber die Änderungsrate der Cost Funktion im Bezug auf die Inputs der vorherigen Schicht berechnet. Statt dem letzten Input wird hier das Aktuelle gewicht multipliziert, und zur variable "dCda\_sum" hinzugefügt.
+\begin{lstlisting}[language=Java]              
+                dCda_sum += dZda * dadZ * dCd0[j];
+            }
+            dCda[k] = dCda_sum;
+        }
+\end{lstlisting} 
+Nach den Schleifen muss nur noch die Backpropagation Methode der vorherige Schicht aufgerufen werden, und dieser der vector "dCda" übergeben werden.
+\begin{lstlisting}[language=Java]   
+        if(previousLayer!= null){
+            previousLayer.backPropagation(dCda);
+        }
+    }
+\end{lstlisting} 
+
+Dieser Prozess muss zwar noch in den anderen Layern implementiert werden, aber auf diese elegante Weise kann die Backpropagation Methode umgesetzt werden werden. Wenn man das Netzwerk ausschließlich aus Fully Connected Layern aufbaut, funktionieren klassifikatorische Aufgaben schon ganz gut. Durch Einsatz von Pooling Layern und Convolutional Layern kann die Effizienz allerdings noch weiter gesteigert werden.
 
 \section{Pooling Layer}
 Pooling Layer werden dazu verwendet, um das sogenannte Downsampling zu betreieben. Downsampling bedeutet einfach, dass eine geringere Auswahl an Daten weitergegeben werden.

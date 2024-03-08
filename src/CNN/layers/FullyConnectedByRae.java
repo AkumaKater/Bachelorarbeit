@@ -63,48 +63,31 @@ public class FullyConnectedByRae extends Layer {
 
     @Override
     public void backPropagation(double[] dCda) {
-        double[] dLdX = new double[inLength];
+        double[] dCdx = new double[inLength];
         double dZdw;
         double dadZ;
         double dCdw;
-        double dzdx;
+        double dZda;
 
         for(int k=0; k<inLength; k++){
 
-            double dLdX_sum = 0;
+            double dCdx_sum = 0;
 
             for(int j=0; j<outLength; j++){
                 dadZ = SigmoidAbleitung(lastZ[j]);
                 dZdw = lastInput[k];
-                dzdx = weights[k][j]; 
+                dZda = weights[k][j]; 
 
                 dCdw = dZdw * dadZ * dCda[j];
 
                 weights[k][j] -= dCdw*learnRate;
 
-                dLdX_sum += dzdx * dadZ * dCda[j];
+                dCdx_sum += dZda * dadZ * dCda[j];
             }
-            dLdX[k] = dLdX_sum;
+            dCdx[k] = dCdx_sum;
         }
         if(previousLayer!= null){
-            previousLayer.backPropagation(dLdX);
-        }
-    }
-
-    public void backPropagation2(double[] dCda) {
-        double dZdw;
-        double dadZ;
-        double dCdw;
-
-        for(int k=0; k<inLength; k++){
-            for(int j=0; j<outLength; j++){
-                dadZ = SigmoidAbleitung(lastZ[j]);
-                dZdw = lastInput[k];
-
-                dCdw = dZdw * dadZ * dCda[j];
-
-                weights[k][j] -= dCdw*learnRate;
-            }
+            previousLayer.backPropagation(dCdx);
         }
     }
 
