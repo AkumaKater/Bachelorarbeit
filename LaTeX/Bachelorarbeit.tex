@@ -685,7 +685,11 @@ Diese Merkmale sind hierarchisch aufgebaut, das heißt das auf den vorderen Schi
 So wie bei den Pooling Layern, werden in den Convolutional Layern Filter eingesetzt, die über das Input Bild gleiten, und eine bestimmte Operation ausführen. Im Gegensatz zu den Pooling Layern, können die Convolutional Layer mehrere Filter besitzen. Dies kann zu Großen mengen an Daten führen, denn jedes Input Bild wird mit jedem Filter verrechnet, und sorgt daher für eine weitere Feature Map. Also die Anzahl der Input Bilder, multipliziert mit der Anzahl der Filter, ergibt die menge der Feature Maps, die an die nächste Schicht weitergegeben werden.
 
 \textbf{Wie Funktioniert die Convolution Operation?}
-
+Die Operation besteht aus einer Rechenoperation zwischen den Filtern, und der Fläche, über welche sie gelegt werden. Ein Filter besteht aus einer Matrix, welche häufig 3x3 oder 5x5 Felder groß ist. 
+Ein Filter wird über das Eingangsbild geschoben, so wie bereits bei den Pooling Layern. Allerdings werden hierbei alle Werte mit den Werten des Filters multipliziert, an den Stellen, an denen sie übereinander liegen. Diese Werte werden addiert, und in einer Feature Map gespeichert.
+Genau genommen ist diese Operation eine Kreuzkorrelation, eine Convolution, im Deutschen "Faltung" genannt, wäre eine Kreuzkorrelation, bei der die Filter noch um 180° gedreht werden müssten. Dies ist allerdings nicht nätig für das Netzwerk. Der Name Convolutional Network ist geblieben, aber statt der eigentlichen Faltung wir die Kreuzkorrelation verwendet.
+Der Filter kann dabei ganz weit außen starten, oder innerhalb der grenzen des Eingangsbildes. Wenn der Filter ganz weit außen startet, so dass nur ein einziges Feld mit dem Eingangsbild überlappt, dann nennt man das eine "Valid Cross-Correlation". Wenn der Filter ganz in der Oberen Linken Ecke startet, dabei aber berits beim ersten Schritt alle Felder des Filters sich innerhalb der grenzen des eingangsbildes befinden, dann nennt man das "Valid Cross-Correlation".
+In diesem Netzwerk werden Valid Cross-Correlation verwendet. Die Größe der entstehenden Feature Map hängt ebenfalls davon ab, welche Cross-Correlation verwendet wird. 
 
 
 
