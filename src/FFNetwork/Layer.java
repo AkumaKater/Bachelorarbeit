@@ -76,7 +76,7 @@ public class Layer {
     public double[] CalculateOutputLayerNodeValues(double[] expectedOutputs) {
         double[] nodeValues = new double[expectedOutputs.length];
         for (int i = 0; i < nodeValues.length; i++) {
-            double costDerivative = CostAbleitung(activations[i], expectedOutputs[i]);
+            double costDerivative = activations[i] - expectedOutputs[i];//CostAbleitung(activations[i], expectedOutputs[i]);
             double activationAbleitung = Activation.geActivation().ActivationAbleitung(weightedInputs[i]);
             nodeValues[i] = activationAbleitung * costDerivative;
         }

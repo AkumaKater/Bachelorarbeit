@@ -81,4 +81,14 @@ public class MnistMatrix {
         return true;
     }
 
+    public double[][] getData() {
+        double[][] image = new double[nRows][nCols];
+        for(int i=0; i<data.length; i++){
+            for(int j=0; j<data.length; j++){
+                image[i][j] = (double)data[i][j];
+            }
+        }
+        return image;
+    }
+
 }

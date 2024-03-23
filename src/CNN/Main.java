@@ -1,88 +1,61 @@
 package CNN;
-import FFNetwork.*;
-import java.text.DecimalFormat;
-import java.util.Arrays;
 
-import MNISTReader.MNISTHTML;
-import MNISTReader.MnistBuffer;
-import MNISTReader.MnistDataReader;
-import MNISTReader.MnistMatrix;
+import java.util.List;
+
+import CNN.data.Image;
+import CNN.network.NetworkBuilder;
+import CNN.network.NeuralNetwork;
+import MNISTReader.MnistImageReader;
+
+import static java.util.Collections.shuffle;
 
 public class Main {
 
     public static void main(String[] args) {
+
+        long SEED = 123;
         System.out.println("Starting Data Loading...");
 
-        String dataHome = "src/MNIST/archive/";// train-labels.idx1-ubyte
-        MnistMatrix[] mnistMatrix = new MnistDataReader().readData(dataHome + "train-images.idx3-ubyte",
-                dataHome + "train-labels.idx1-ubyte");
-        MnistMatrix[] mnistMatrix2 = new MnistDataReader().readData(dataHome + "t10k-images.idx3-ubyte",
-                dataHome + "t10k-labels.idx1-ubyte");
+        List<Image> TrainingsImages = new MnistImageReader().readData("train-images.idx3-ubyte",
+                "train-labels.idx1-ubyte");
+        List<Image> TestingImages = new MnistImageReader().readData("t10k-images.idx3-ubyte",
+                "t10k-labels.idx1-ubyte");
+
+        //List<Image> TrainingsImages = new MnistDataReader().getImages("train-images.idx3-ubyte");
+        System.out.println("Trainings Data: "+ TrainingsImages.size());
+        //List<Image> TestingImages = new MnistDataReader().getImages("t10k-images.idx3-ubyte");
+        System.out.println("Test Data: "+ TestingImages.size());
         
+
+        NetworkBuilder builder = new NetworkBuilder(28, 28, 256*100);
+        builder.addConvolutionLayer(8, 5, 1, 0.1, SEED);
+        builder.addMaxPoolLayer(3, 2);
+        //builder.addFullyConnectedLayer(100, 0.1, SEED);
+        builder.addFullyConnectedLayer(10, 0.1, SEED);
+        //builder.addFullyConnectedLayerOld(100);
+        //builder.addFullyConnectedLayerOld(10);
+
+        NeuralNetwork nn = builder.build();
+
+        float rate = nn.test(TestingImages);
+        System.out.println("Pre Training succes Rate: " + rate);
+
+        int epochs = 3;
+
+        for(int i = 0; i < epochs; i++){
+            shuffle(TrainingsImages);
+            PredictSome(3, TrainingsImages, nn);
+            nn.train(TrainingsImages);
+            rate = nn.test(TestingImages);
+            System.out.println("Success rate after round " + (i+1) + ": " + rate);
+        }
     }
 
-    public static void mainDeprecated(String[] args) throws Exception{
-        ConfigLoader config = ConfigLoader.getConfig();
-        int splitIndex = config.getSplitIndex(); // 60.000
-        int TrainingCycles = config.getTrainingCycles();
-        int BatchSize = config.getBatchSize();
-        DecimalFormat df = new DecimalFormat("0.00");
-
-        MnistBuffer mBuffer = new MnistBuffer();
-        mBuffer.loadMNIST();
-        mBuffer.splitData(splitIndex);
-
-        NeuralNetwork nn = new NeuralNetwork(config.getLearnRate(), config.getLayers());
-
-        for(int i=0; i<(splitIndex*TrainingCycles/BatchSize); i++){
-            MnistMatrix[] mnistMatrix = mBuffer.getBatch(BatchSize);
-            nn.learn(mnistMatrix);
-            System.out.print('\r');
-            System.out.print(df.format((double) i / (splitIndex*TrainingCycles/BatchSize-1) * 100) + "%");
+    public static void PredictSome(int iterations, List<Image> list, NeuralNetwork nn){
+        for(int i=0; i< iterations; i++){
+            //System.out.println(list.get(i).printMnistMatrix());
+            System.out.println(list.get(i).toString());
+            System.out.println("Prediction: "+nn.guess(list.get(i)));
         }
-
-        String accTrain = getAcuracy(nn, mBuffer.getTrainingsData());
-        String accTest = getAcuracy(nn, mBuffer.getTestData());
-
-        MNISTHTML html = new MNISTHTML()
-        .h1("Visualisierung der Netzwerk Ergebnisse")
-        .setHeader(accTrain, accTest)
-        .h2("Trainings Daten")
-        .printMatrix(Arrays.copyOfRange(mBuffer.getTrainingsData(), 1, 20), nn)
-        .h2("Test Daten")
-        .printMatrix(Arrays.copyOfRange(mBuffer.getTestData(), 1, 20), nn);
-
-        html.writeHTML();
-
-        html = new MNISTHTML().log(accTrain, accTest);
-        
-    }
-
-    public static String getAcuracy(FFNetwork.NeuralNetwork nn, MnistMatrix[] mnistMatrix) {
-        int iterations = mnistMatrix.length;
-        int correct = 0;
-        double acuracy = 0.0;
-        for (int i = 0; i < iterations; i++) {
-            int Hindex = getHighestIndex(nn.Querry(mnistMatrix[i].getInputs()));
-            int label = mnistMatrix[i].getLabel();
-            if (Hindex == label) {
-                correct++;
-            }
-        }
-        acuracy = (double) correct / (double) iterations * 100;
-        DecimalFormat df = new DecimalFormat("0.00");
-        return df.format(acuracy) + "%";
-    }
-
-    public static int getHighestIndex(double[] numbers) {
-        int maxNumberIndex = 0;
-
-        // Schleife durch das Array laufen und die größte Zahl finden
-        for (int i = 0; i < numbers.length; i++) {
-            if (numbers[i] > numbers[maxNumberIndex]) {
-                maxNumberIndex = i;
-            }
-        }
-        return maxNumberIndex;
     }
 }

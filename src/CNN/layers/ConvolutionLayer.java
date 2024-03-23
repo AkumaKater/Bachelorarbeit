@@ -1,9 +1,10 @@
 package CNN.layers;
 
+import static CNN.data.MatrixUtility.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import static CNN.MatrixUtility.*;
 
 public class ConvolutionLayer extends Layer {
 

@@ -5,56 +5,41 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MnistDataReader {
+public class MnistImageReader {
 
-    public MnistMatrix[] readData(String dataFilePath, String labelFilePath) {
-        return readData(dataFilePath, labelFilePath, false);
-    }
-
-    public MnistMatrix[] readData(String dataFilePath, String labelFilePath, boolean Log) {
-
+    public List<Image> readData(String dataFilePath, String labelFilePath) {
+        String dataHome = "src/MNIST/archive/";// train-labels.idx1-ubyte
         try {
             DataInputStream dataInputStream = new DataInputStream(
-                    new BufferedInputStream(new FileInputStream(dataFilePath)));
+                    new BufferedInputStream(new FileInputStream(dataHome+dataFilePath)));
             int magicNumber = dataInputStream.readInt();
             int numberOfItems = dataInputStream.readInt();
             int nRows = dataInputStream.readInt();
             int nCols = dataInputStream.readInt();
 
-            if (Log) {
-                System.out.println("magic number is " + magicNumber);
-                System.out.println("number of items is " + numberOfItems);
-                System.out.println("number of rows is: " + nRows);
-                System.out.println("number of cols is: " + nCols);
-            }
-
             DataInputStream labelInputStream = new DataInputStream(
-                    new BufferedInputStream(new FileInputStream(labelFilePath)));
+                    new BufferedInputStream(new FileInputStream(dataHome+labelFilePath)));
             int labelMagicNumber = labelInputStream.readInt();
             int numberOfLabels = labelInputStream.readInt();
 
-            if (Log) {
-                System.out.println("labels magic number is: " + labelMagicNumber);
-                System.out.println("number of labels is: " + numberOfLabels);
-            }
-
-            MnistMatrix[] data = new MnistMatrix[numberOfItems];
+            List<Image> images = new ArrayList<>();
 
             assert numberOfItems == numberOfLabels;
 
             for (int i = 0; i < numberOfItems; i++) {
-                MnistMatrix mnistMatrix = new MnistMatrix(nRows, nCols);
-                mnistMatrix.setLabel(labelInputStream.readUnsignedByte());
+                Image image;
+                double[][] data = new double[nRows][nCols];
                 for (int r = 0; r < nRows; r++) {
                     for (int c = 0; c < nCols; c++) {
-                        mnistMatrix.setValue(r, c, dataInputStream.readUnsignedByte());
+                        data[r][c] = dataInputStream.readUnsignedByte();
                     }
                 }
-                data[i] = mnistMatrix;
+                image = new Image( data, labelInputStream.readUnsignedByte());
+                images.add(image);
             }
             dataInputStream.close();
             labelInputStream.close();
-            return data;
+            return images;
 
         } catch (Exception e) {
             System.out.println(e.getMessage());

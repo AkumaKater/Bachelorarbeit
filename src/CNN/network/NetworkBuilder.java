@@ -47,6 +47,16 @@ public class NetworkBuilder {
         }
     }
 
+    public void addFullyConnectedLayerOld(int outLength){
+        //FullyConnectedLayer
+        if(layers.isEmpty()){
+            layers.add(new FullyConnectedLayer(inputCols*inputRows, outLength));
+        }else{
+            Layer previousLayer = layers.get(layers.size()-1);
+            layers.add(new FullyConnectedLayer(previousLayer.getOutputElements(), outLength));
+        }
+    }
+
     public NeuralNetwork build(){
         nn = new NeuralNetwork(layers, scaleFactor);
         return nn;

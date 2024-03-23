@@ -107,23 +107,26 @@ public class FullyConnectedLayer extends Layer{
             weightedInputs[nodeOut] = weightedInput;
             activations[nodeOut] = activ.ActivationFunction(weightedInput);
         }
-        return nextLayer.getOutput(activations);
+        if(nextLayer!=null){
+            return nextLayer.getOutput(activations);
+        }else{
+            return activations;
+        }
     }
 
     public void backPropagation(double[] expectedOutputs) {
         double[] nodeValues = expectedOutputs;
         if (nextLayer == null) {
-            nodeValues = CalculateOutputLayerNodeValues(expectedOutputs);
+            nodeValues = CalculateOutputLayerNodeValues(nodeValues);
         } else {
             nodeValues = CalculateHiddenLayerNodeValues(nodeValues);
-
-            UpdateGradients(nodeValues);
-    
-            if (previousLayer != null) {
-                previousLayer.backPropagation(nodeValues);
-            }
-    
         }
+        UpdateGradients(nodeValues);
+    
+        if (previousLayer != null) {
+            previousLayer.backPropagation(nodeValues);
+        }
+    
     }
 
     @Override
@@ -148,6 +151,6 @@ public class FullyConnectedLayer extends Layer{
 
     @Override
     public int getOutputElements() {
-        return numInputNodes * numOutputNodes;
+        return numOutputNodes;
     }
 }

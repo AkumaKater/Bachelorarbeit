@@ -1,6 +1,6 @@
-LayerSizes=784,300,10
+LayerSizes=784,100,10
 SplitIndex=60000
-TrainingCycles=5
+TrainingCycles=1
 LearnRate=0.2
 BatchSize=50
 PerformanceNotes=FFN-Ausgabe/PN(Overfitting)V2.html

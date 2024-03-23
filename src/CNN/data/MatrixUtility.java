@@ -1,4 +1,4 @@
-package CNN;
+package CNN.data;
 
 public class MatrixUtility {
     
@@ -38,7 +38,7 @@ public class MatrixUtility {
 
         for(int i=0; i<a.length; i++){
             for(int j=0; j<a[0].length; j++){
-                out[i][j] = a[i][j] * scalar;
+                out[i][j] = (a[i][j] * scalar);
             }
         }
         return out;
