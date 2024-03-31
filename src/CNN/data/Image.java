@@ -1,7 +1,5 @@
 package CNN.data;
 
-import MNISTReader.MnistMatrix;
-
 public class Image {
     
 
@@ -48,7 +46,7 @@ public class Image {
         for(int i =0; i < data.length; i++){
             for(int j =0; j < data[0].length; j++){
                 //s+= data[i][j] + ", ";
-                if(data[i][j]>0){
+                if(data[i][j]>100){
                     s+= "@";
                 }else{
                     s+= ".";

@@ -39,7 +39,7 @@ public class FullyConnectedByRae extends Layer {
 
         for(int i=0; i<inLength; i++){
             for(int j=0; j<outLength;j++){
-                a[j] = ReLu(Z[j]);
+                a[j] = Sigmoid(Z[j]);
             }
         }
         return a;
@@ -74,7 +74,7 @@ public class FullyConnectedByRae extends Layer {
             double dCdx_sum = 0;
 
             for(int j=0; j<outLength; j++){
-                dadZ = ReLuAbleitung(lastZ[j]);
+                dadZ = SigmoidAbleitung(lastZ[j]);
                 dZdw = lastInput[k];
                 dZda = weights[k][j]; 
 

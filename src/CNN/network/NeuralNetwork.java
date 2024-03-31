@@ -87,6 +87,10 @@ public class NeuralNetwork {
         }
     }
 
+    public List<Layer> getLayers() {
+        return layers;
+    }
+
 }
 
 class GuessIsNullException extends Exception{

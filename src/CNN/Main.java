@@ -29,11 +29,9 @@ public class Main {
 
         NetworkBuilder builder = new NetworkBuilder(28, 28, 256*100);
         builder.addConvolutionLayer(8, 5, 1, 0.1, SEED);
-        builder.addMaxPoolLayer(3, 2);
-        //builder.addFullyConnectedLayer(100, 0.1, SEED);
+        builder.addMaxPoolLayer(2, 3);
+        builder.addFullyConnectedLayer(100, 0.1, SEED);
         builder.addFullyConnectedLayer(10, 0.1, SEED);
-        //builder.addFullyConnectedLayerOld(100);
-        //builder.addFullyConnectedLayerOld(10);
 
         NeuralNetwork nn = builder.build();
 
@@ -44,11 +42,13 @@ public class Main {
 
         for(int i = 0; i < epochs; i++){
             shuffle(TrainingsImages);
-            PredictSome(3, TrainingsImages, nn);
             nn.train(TrainingsImages);
+            PredictSome(3, TrainingsImages, nn);
             rate = nn.test(TestingImages);
             System.out.println("Success rate after round " + (i+1) + ": " + rate);
         }
+
+        System.out.println(nn.getLayers().get(0).toString());
     }
 
     public static void PredictSome(int iterations, List<Image> list, NeuralNetwork nn){

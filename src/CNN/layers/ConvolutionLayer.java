@@ -2,6 +2,7 @@ package CNN.layers;
 
 import static CNN.data.MatrixUtility.*;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -269,5 +270,30 @@ public class ConvolutionLayer extends Layer {
             outRow++;
         }
         return output;
+    }
+
+    @Override
+    public String toString() {
+        DecimalFormat df = new DecimalFormat("0.00");
+        String out = "";
+        for(double[][] filter : filters){
+            for(double[] row : filter){
+                for(double value : row){
+                    if(value< -0.5){
+                        out += "..";
+                    }
+                    if(value>= -0.5 && value <= 0.5){
+                        out += "||";
+                    }
+                    if(value> 0.5){
+                        out += "@@";
+                    }
+                }
+                out += "\n";
+            }
+            out += "\n";
+        }
+
+        return out;
     }
 }
