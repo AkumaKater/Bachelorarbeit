@@ -12,6 +12,7 @@ public class MnistImageReader {
         try {
             DataInputStream dataInputStream = new DataInputStream(
                     new BufferedInputStream(new FileInputStream(dataHome+dataFilePath)));
+            @SuppressWarnings("unused")
             int magicNumber = dataInputStream.readInt();
             int numberOfItems = dataInputStream.readInt();
             int nRows = dataInputStream.readInt();
@@ -19,6 +20,7 @@ public class MnistImageReader {
 
             DataInputStream labelInputStream = new DataInputStream(
                     new BufferedInputStream(new FileInputStream(dataHome+labelFilePath)));
+            @SuppressWarnings("unused")
             int labelMagicNumber = labelInputStream.readInt();
             int numberOfLabels = labelInputStream.readInt();
 

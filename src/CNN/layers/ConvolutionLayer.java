@@ -2,7 +2,6 @@ package CNN.layers;
 
 import static CNN.data.MatrixUtility.*;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -274,7 +273,7 @@ public class ConvolutionLayer extends Layer {
 
     @Override
     public String toString() {
-        DecimalFormat df = new DecimalFormat("0.00");
+        //DecimalFormat df = new DecimalFormat("0.00");
         String out = "";
         for(double[][] filter : filters){
             for(double[] row : filter){

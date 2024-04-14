@@ -51,6 +51,7 @@ public class Layer {
         }
     }
 
+    @SuppressWarnings("unused")
     private double CostAbleitung(double activation, double expectedOutput) {
         return 2 * (activation - expectedOutput);
     }

@@ -37,6 +37,7 @@ public class Main {
 
         float rate = nn.test(TestingImages);
         System.out.println("Pre Training succes Rate: " + rate);
+        PredictSome(3, TrainingsImages, nn);
 
         int epochs = 3;
 
