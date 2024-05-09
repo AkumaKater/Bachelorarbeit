@@ -77,6 +77,7 @@ public class NeuralNetwork {
     }
 
     public void train (List<Image> images){
+        int index = 0;
         for(Image img : images){
             List<double[][]> inList = new ArrayList<>();
             inList.add(multiply(img.getData(), (1.0/scaleFactor)));
@@ -84,7 +85,12 @@ public class NeuralNetwork {
             double dCdO[] = getErrors(out, img.getLabel());
 
             layers.get((layers.size()-1)).backPropagation(dCdO);
+
+            System.out.print("Prozent: "+index*100/images.size()+"%");
+            System.out.print('\r');
+            index++;
         }
+        System.out.println("100%");
     }
 
     public List<Layer> getLayers() {

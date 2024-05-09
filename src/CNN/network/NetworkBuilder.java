@@ -20,12 +20,12 @@ public class NetworkBuilder {
         layers = new ArrayList<>();
     }
 
-    public void addConvolutionLayer(int numFilters, int filterSize, int stepSize, double learnRate, long SEED){
+    public void addConvolutionLayer(int numFilters, int filterSize, int stepSize, double learnRate){
         if(layers.isEmpty()){
-            layers.add(new ConvolutionLayer(filterSize, stepSize, 1, inputRows, inputCols, SEED, numFilters, learnRate));
+            layers.add(new ConvolutionLayer(filterSize, stepSize, 1, inputRows, inputCols, numFilters, learnRate));
         }else{
             Layer previousLayer = layers.get(layers.size()-1);
-            layers.add(new ConvolutionLayer(filterSize, stepSize, previousLayer.getOutputLength(), previousLayer.getOutputRows(), previousLayer.getOutputCols(), SEED, numFilters, learnRate));
+            layers.add(new ConvolutionLayer(filterSize, stepSize, previousLayer.getOutputLength(), previousLayer.getOutputRows(), previousLayer.getOutputCols(), numFilters, learnRate));
         }
     }
 
@@ -38,22 +38,22 @@ public class NetworkBuilder {
         }
     }
 
-    public void addFullyConnectedLayer(int outLength, double learnRate, long SEED){
+    public void addFullyConnectedLayer(int outLength, double learnRate ){
         if(layers.isEmpty()){
-            layers.add(new FullyConnectedByRae(inputCols*inputRows, outLength, SEED, learnRate));
+            layers.add(new FullyConnectedLayer(inputCols*inputRows, outLength, learnRate));
         }else{
             Layer previousLayer = layers.get(layers.size()-1);
-            layers.add(new FullyConnectedByRae(previousLayer.getOutputElements(), outLength, SEED, learnRate));
+            layers.add(new FullyConnectedLayer(previousLayer.getOutputElements(), outLength, learnRate));
         }
     }
 
     public void addFullyConnectedLayerOld(int outLength){
         //FullyConnectedLayer
         if(layers.isEmpty()){
-            layers.add(new FullyConnectedLayer(inputCols*inputRows, outLength));
+            layers.add(new FullyConnectedLayer_Deprecated(inputCols*inputRows, outLength));
         }else{
             Layer previousLayer = layers.get(layers.size()-1);
-            layers.add(new FullyConnectedLayer(previousLayer.getOutputElements(), outLength));
+            layers.add(new FullyConnectedLayer_Deprecated(previousLayer.getOutputElements(), outLength));
         }
     }
 

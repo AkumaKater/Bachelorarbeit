@@ -49,8 +49,8 @@ public class Image {
         this.data = data;
     }
 
-    //@Override
-    public String toStringFirst(){
+    @Override
+    public String toString(){
 
         String s = "Label: " + label + ", \n";
 
@@ -64,21 +64,6 @@ public class Image {
                 }
             }
             s+= "\n";
-        }
-
-        return s;
-    }
-
-    @Override
-    public String toString(){
-
-        String s = "Label: " + label + ", \n"+"[";
-
-        for(int i =0; i < data.length; i++){
-            for(int j =0; j < data[0].length; j++){
-                s+= data[i][j] + ", ";
-            }
-            s+= "]\n";
         }
 
         return s;

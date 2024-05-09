@@ -8,8 +8,6 @@ import java.util.Random;
 
 public class ConvolutionLayer extends Layer {
 
-    private long SEED;
-
     private List<double[][]> filters;
     private int filterSize;
     private int stepSize;
@@ -21,14 +19,13 @@ public class ConvolutionLayer extends Layer {
 
     private List<double[][]> lastInput;
 
-    public ConvolutionLayer(int filterSize, int stepSize, int inLength, int inRows, int inCols, long SEED,
+    public ConvolutionLayer(int filterSize, int stepSize, int inLength, int inRows, int inCols,
             int numFilters, double learnRate) {
         this.filterSize = filterSize;
         this.stepSize = stepSize;
         this.inLength = inLength;
         this.inRows = inRows;
         this.inCols = inCols;
-        this.SEED = SEED;
         this.learnRate = learnRate;
 
         generateRandomFilters(numFilters);
@@ -36,7 +33,7 @@ public class ConvolutionLayer extends Layer {
 
     private void generateRandomFilters(int numFilters) {
         List<double[][]> filters = new ArrayList<>();
-        Random random = new Random(SEED);
+        Random random = new Random();
 
         for (int n = 0; n < numFilters; n++) {
             double[][] newFilter = new double[filterSize][filterSize];

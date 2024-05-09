@@ -13,7 +13,6 @@ public class Main {
 
     public static void main(String[] args) {
 
-        long SEED = 123;
         System.out.println("Starting Data Loading...");
 
         List<Image> TrainingsImages = new MnistImageReader().readData("train-images.idx3-ubyte",
@@ -28,10 +27,10 @@ public class Main {
         
 
         NetworkBuilder builder = new NetworkBuilder(28, 28, 256*100);
-        builder.addConvolutionLayer(8, 5, 1, 0.1, SEED);
+        builder.addConvolutionLayer(8, 5, 1, 0.1);
         builder.addMaxPoolLayer(2, 3);
-        builder.addFullyConnectedLayer(100, 0.1, SEED);
-        builder.addFullyConnectedLayer(10, 0.1, SEED);
+        builder.addFullyConnectedLayer(100, 0.1);
+        builder.addFullyConnectedLayer(10, 0.1);
 
         NeuralNetwork nn = builder.build();
 
@@ -49,7 +48,8 @@ public class Main {
             System.out.println("Success rate after round " + (i+1) + ": " + rate);
         }
 
-        System.out.println(nn.getLayers().get(0).toString());
+        //Dies hier sorgt für die Ausgabe von Filtern
+        //System.out.println(nn.getLayers().get(0).toString());
     }
 
     public static void PredictSome(int iterations, List<Image> list, NeuralNetwork nn){
