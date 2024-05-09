@@ -129,7 +129,7 @@ Mit "inLength" ist die Menge an Inputs gemeint, das heißt zum Beispiel wie viel
 Mit "outLength" entspricht dann auch der Menge an Outputs welche von der Schicht erzeugt werden, das hängt davon ab, wie viele Knoten die nächste Schicht hat, oder wenn es die letzte Schicht ist, wie viele mögliche Antworten das Netzwerk hat.
 Die "learnRate" schränkt die größe der Inkremente zwischen den einzelnen gelernten Bildern ein. Dies ist Notwendig, da die berechneten inkremente, also die Steigung im Fehlergraphen, normalerweise zu groß ist, und die Fehler Minima dadurch häufig übersprungen werden. Das netzwerk soll sich aber dem Fehlerminimum annähern, also müssen die Schritte kleiner sein. Zu klein sollten sie aber auch nicht sein, weil das Netzwerk dadurch deutlich langsamer wird, und eine zu langsame Annäherung nicht Vorteilhaft ist.
 
-TODO Bild von Lernrate zu groß und zu klein
+%TODO Bild von Lernrate zu groß und zu klein
 
 Mit dem Array "lastZ" und "lastInput" sollen jeweils für die Backpropagation Notwendige Zwischenschritte gespeichert werden. "lastZ" entspricht den Inputs multipliziert mit den Gewichten. Das bedeutet hierbei handelt es sich um die Ergebnisse der Schicht bevor sie durch die Activation Funktion umgerechnet werden. Mit "lastInput" sind einfach die Inputs gemeint, die zuletzt in diese Schicht geleitet wurden, und noch keinen Rechnungen unterlegen sind. Genaueres wird im Unterkapitel zur Backpropagation betrachtet, aber diese Werte sind in den verschiedenen Schritten durch die Kettenregel Notwendig.
 
@@ -269,7 +269,7 @@ $$\sigma (x)=\frac{1}{(1+e^{-x})}$$
 Und ihre Ableitung:
 $$\sigma '(x)=\sigma (x)(1-\sigma(x))$$
 
-TODO Es kann hier noch die Ableitung der Sigmoid erklärt werden, so wie Prof Lanz sich das gewünscht hat. Allerdings ist dies Extrem aufwändig, und nicht zu empfehlen...
+%TODO Es kann hier noch die Ableitung der Sigmoid erklärt werden, so wie Prof Lanz sich das gewünscht hat. Allerdings ist dies Extrem aufwändig, und nicht zu empfehlen...
 
 Hier ist der Code für die Sigmoid Funktion und ihre Ableitung:
 \begin{lstlisting}[language=Java] 
@@ -503,7 +503,7 @@ public class MaxPoolLayer extends Layer {
 \subsection{Forward Propagation im Pooling Layer}
 Wie oben beschrieben, wird hier ein kleiner Filter benutzt, der über die Input Bilder gleitet, und entweder den maximalen Wert, oder den Durchschnittswert zurückgibt. 
 
-TODO Bild einfügen
+%TODO Bild einfügen
 
 Zunächst wird eine Methode benötigt, die den Filter darstellt, und eine Feature Map durchläuft. 
 
@@ -572,7 +572,7 @@ Und im Code werden diese so umgesetzt:
 \subsection{Backpropagation im Pooling Layer}
 Für die Backpropagation in einem Pooling Layer müssen keine gewichte oder Biases angepasst werden. Denn diese gibt es hier nicht. Stattdessen muss der Fehler aber trotzdem auf einen der Inputs zurückgeführt werden, das heißt zum Beispiel, dass beim Max Pooling aus jedem von dem Filter Fenster betrachteten Gebiet der Maximale Wert für den Fehler verantwortlich war, und die anderen Werte keine Verantwortung tragen. 
 
-TODO Bild einfügen
+%TODO Bild einfügen
 
 Am besten gelingt dies, indem die Positionen der Maximal Werte gespeichert werden.
 Dazu sollten erst neuen Instanzvariablen angelegt werden:
@@ -698,17 +698,95 @@ Diese Merkmale sind hierarchisch aufgebaut, das heißt das auf den vorderen Schi
 So wie bei den Pooling Layern, werden in den Convolutional Layern Filter eingesetzt, die über das Input Bild gleiten, und eine bestimmte Operation ausführen. Im Gegensatz zu den Pooling Layern, können die Convolutional Layer mehrere Filter besitzen. Dies kann zu Großen mengen an Daten führen, denn jedes Input Bild wird mit jedem Filter verrechnet, und sorgt daher für eine weitere Feature Map. Also die Anzahl der Input Bilder, multipliziert mit der Anzahl der Filter, ergibt die menge der Feature Maps, die an die nächste Schicht weitergegeben werden.
 
 \textbf{Wie Funktioniert die Convolution Operation?}
+
 Die Operation besteht aus einer Rechenoperation zwischen den Filtern, und der Fläche, über welche sie gelegt werden. Ein Filter besteht aus einer Matrix, welche häufig 3x3 oder 5x5 Felder groß ist. 
 Ein Filter wird über das Eingangsbild geschoben, so wie bereits bei den Pooling Layern. Allerdings werden hierbei alle Werte mit den Werten des Filters multipliziert, an den Stellen, an denen sie übereinander liegen. Diese Werte werden addiert, und in einer Feature Map gespeichert.
-Genau genommen ist diese Operation eine Kreuzkorrelation, eine Convolution, im Deutschen "Faltung" genannt, wäre eine Kreuzkorrelation, bei der die Filter noch um 180° gedreht werden müssten. Dies ist allerdings nicht nätig für das Netzwerk. Der Name Convolutional Network ist geblieben, aber statt der eigentlichen Faltung wir die Kreuzkorrelation verwendet.
-Der Filter kann dabei ganz weit außen starten, oder innerhalb der grenzen des Eingangsbildes. Wenn der Filter ganz weit außen startet, so dass nur ein einziges Feld mit dem Eingangsbild überlappt, dann nennt man das eine "Valid Cross-Correlation". Wenn der Filter ganz in der Oberen Linken Ecke startet, dabei aber berits beim ersten Schritt alle Felder des Filters sich innerhalb der grenzen des eingangsbildes befinden, dann nennt man das "Valid Cross-Correlation".
-In diesem Netzwerk werden Valid Cross-Correlation verwendet. Die Größe der entstehenden Feature Map hängt ebenfalls davon ab, welche Cross-Correlation verwendet wird. 
+Genau genommen ist diese Operation eine Kreuzkorrelation. Eine Convolution, im Deutschen "Faltung" genannt, wäre eine Kreuzkorrelation, bei der die Filter noch um 180° gedreht werden müssten. Dies ist allerdings nicht nötig für das Netzwerk. Der Name Convolutional Network ist geblieben, aber statt der eigentlichen Faltung wir die Kreuzkorrelation verwendet.
+Der Filter kann dabei ganz weit außen starten, oder innerhalb der grenzen des Eingangsbildes. Wenn der Filter ganz weit außen startet, so dass nur ein einziges Feld mit dem Eingangsbild überlappt, dann nennt man das eine "Full Cross-Correlation". Wenn der Filter ganz in der Oberen Linken Ecke startet, dabei aber bereits beim ersten Schritt alle Felder des Filters innerhalb der grenzen des Eingangsbildes befinden, dann nennt man das "Valid Cross-Correlation".
+In diesem Netzwerk wird die Valid Cross-Correlation verwendet. Die Größe der entstehenden Feature Map hängt ebenfalls davon ab, welche Cross-Correlation verwendet wird. 
+Bei der Full Cross-Correlation wird außerhalb der Matrix angefangen. Das bedeutet, dass mehr Schritte benötigt werden, um durch eine Reihe zu iterieren, und daher entstehen auch mehr Einträge in der Feature Map.
+
+% Done Hier muss noch ein Bild hin welches die Full Cross-Correlation erklärt
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{./Images/Full_Correlation_004.jpg}
+\caption{Full Cross-Correlation}
+\label{Full Correlation}
+\end{figure}
+ 
+Die Valid Cross-Correlation hingegen beweg sich nur in den Grenzen des Eingangsbildes, daher entstehen weniger Einträge in die Feature Map.
+
+% Done Hier muss noch ein Bild hin welches die Valid Cross-Correlation erklärt
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{./Images/Valid_Correlation_005.jpg}
+\caption{Valid Cross-Correlation}
+\label{Full Correlation}
+\end{figure}
+
+Die Berechnung der Breite und Höhe einer entstehenden Feature Map sind genauso aufgebaut wie zuvor bei den Pool Layern:
+
+$$H_{out} = (H - filter\_height)/stride + 1$$
+$$W_{out} = (W - filter\_ width)/stride + 1$$
+
+
+% TODO Hier müssen mehr erklärungen hin zu der Funktionsweise der Schicht
 
 
 
 
 
 
+
+
+
+
+\cleardoublepage
+\subsection{Forward Propagation im Convolutional Layer}
+Grundlegend braucht diese Schicht Filter. Die Filter werden von zwei Parametern gebildet, und zwar "filterSize" und "numFilters". Die Größe der Filter wird dabei von "filterSize" festgelegt, und "numFilters" beschreibt die Anzahl an Filtern. Wir gehen davon aus, dass die Filter immer Quadratisch sind, daher reicht ein Wert um die Größe zu beschreiben.
+
+Darüber hinaus wird wie bei den Pool Layern zuvor, wieder Schritt Größen, also "stepSize", gebraucht. Diese entscheiden, wie viele Pixel der Filter bei einem Schritt überspringt. Wenn diese Größer angelegt werden, werden die Feature maps dementsprechend kleiner, allerdings kann das dazu führen, dass Features nicht erkannt und weiterverarbeitet werden. 
+
+Die Restlichen Werte die übergeben werden haben mit der Verarbeitung der eingangs- und Ausgangsbildern zu tun.
+
+Wichtig ist, dass genau wie in den Fully Connected Layern die anpassbaren Werte nicht mit 0 als Startwert initiiert werden, sondern mit zufällig generierten Zahlen. Ansonsten würden die Anpassungen auch immer gleich aussehen. Die Werte, die in dieser Schicht trainiert werden können, sind die Werte in den Filtern.
+
+Hier ist die Constructor Methode der Klasse "ConvolutionLayer":
+
+\begin{lstlisting}[language=Java]
+public ConvolutionLayer(int filterSize, int stepSize, int inLength, int inRows, int inCols, int numFilters, double learnRate) {
+        this.filterSize = filterSize;
+        this.stepSize = stepSize;
+        this.inLength = inLength;
+        this.inRows = inRows;
+        this.inCols = inCols;
+        this.learnRate = learnRate;
+
+        generateRandomFilters(numFilters);
+    }
+\end{lstlisting}
+
+Und in der Methode "generateRandomFilters" wedren die Filter generiert, und mit Zufallszahlen initiiert:
+
+\begin{lstlisting}[language=Java]
+private void generateRandomFilters(int numFilters) {
+        List<double[][]> filters = new ArrayList<>();
+        Random random = new Random();
+
+        for (int n = 0; n < numFilters; n++) {
+            double[][] newFilter = new double[filterSize][filterSize];
+
+            for (int i = 0; i < filterSize; i++) {
+                for (int j = 0; j < filterSize; j++) {
+                    double value = random.nextGaussian();
+                    newFilter[i][j] = value;
+                }
+            }
+            filters.add(newFilter);
+        }
+        this.filters = filters;
+    }
+\end{lstlisting}
 
 
 

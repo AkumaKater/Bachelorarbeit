@@ -8,27 +8,50 @@
         "type": "tabs",
         "children": [
           {
-            "id": "3e1235bddbb979e9",
+            "id": "d7043962f360bb8b",
             "type": "leaf",
             "state": {
-              "type": "release-notes",
+              "type": "markdown",
               "state": {
-                "currentVersion": "1.5.3"
+                "file": "Psychologia.md",
+                "mode": "source",
+                "source": false
               }
             }
           },
           {
-            "id": "d7043962f360bb8b",
+            "id": "a28c900d2dac2664",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.5.8"
+              }
+            }
+          },
+          {
+            "id": "f02a6996ba9d02c9",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Psychologia.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "a821d12863e27002",
             "type": "leaf",
             "state": {
               "type": "pdf",
               "state": {
-                "file": "978-3-319-46475-6_41.pdf"
+                "file": "YOLO_architecture.pdf"
               }
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -94,7 +117,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "978-3-319-46475-6_41.pdf",
+                "file": "Psychologia.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -111,7 +134,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "978-3-319-46475-6_41.pdf",
+                "file": "Psychologia.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -134,7 +157,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "978-3-319-46475-6_41.pdf"
+                "file": "Psychologia.md"
               }
             }
           }
@@ -155,9 +178,11 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "75353c095421b092",
+  "active": "d7043962f360bb8b",
   "lastOpenFiles": [
+    "978-3-319-46475-6_41.pdf",
+    "YOLO_architecture.pdf",
     "Quellen.md",
-    "YOLO_architecture.pdf"
+    "Psychologia.md"
   ]
 }
