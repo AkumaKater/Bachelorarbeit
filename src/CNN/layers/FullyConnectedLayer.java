@@ -1,137 +1,97 @@
 package CNN.layers;
 
-import FFNetwork.NNMath;
-
 import java.util.List;
+import java.util.Random;
 
-import FFNetwork.Activation;
+public class FullyConnectedLayer extends Layer {
 
-public class FullyConnectedLayer extends Layer{
-
-    int numInputNodes, numOutputNodes;
     double[][] weights;
-    double[] bias;
-    // --> Steigung der Cost Funktion im Bezug auf das Gewicht W
-    double[][] CostSteigungW;
-    // --> Steigung der Cost Funktion im Bezug auf die Biases b
-    double[] CostSteigungB;
+    int inLength;
+    int outLength;
+    double learnRate;
 
-    double[] inputs;
-    double[] weightedInputs;
-    double[] activations;
+    private double[] lastZ;
+    private double[] lastInput;
 
-    public FullyConnectedLayer(int numInputNodes, int numOutputNodes) {
-        this.numInputNodes = numInputNodes;
-        this.numOutputNodes = numOutputNodes;
-        weights = NNMath.RandomDoubleArrayMatrix(numOutputNodes, numInputNodes);
+    public FullyConnectedLayer(int inLength, int outLength, double learnRate) {
+        this.inLength = inLength;
+        this.outLength = outLength;
+        this.learnRate = learnRate;
 
-        inputs = new double[numInputNodes];
-        weightedInputs = new double[numOutputNodes];
-        activations = new double[numOutputNodes];
-        CostSteigungW = new double[numInputNodes][numOutputNodes];
-
-        bias = NNMath.RandomDoubleArray(numOutputNodes);
-        CostSteigungB = new double[numOutputNodes];
+        weights = new double[inLength][outLength];
+        setRandomWeights();
     }
 
-    private double CostAbleitung(double activation, double expectedOutput) {
-        return 2 * (activation - expectedOutput);
-    }
-
-    public double[] CalculateOutputLayerNodeValues(double[] expectedOutputs) {
-        double[] nodeValues = new double[expectedOutputs.length];
-        for (int i = 0; i < nodeValues.length; i++) {
-            double costDerivative = CostAbleitung(activations[i], expectedOutputs[i]);
-            double activationAbleitung = Activation.geActivation().ActivationAbleitung(weightedInputs[i]);
-            nodeValues[i] = activationAbleitung * costDerivative;
-        }
-        return nodeValues;
-    }
-
-    public double[] CalculateHiddenLayerNodeValues(double[] nodeValues) {
-        FullyConnectedLayer oldLayer = (FullyConnectedLayer)nextLayer;
-        double[] newNodeValues = new double[numOutputNodes];
-        Activation ac = Activation.geActivation();
-        for (int i = 0; i < numOutputNodes; i++) {
-            for (int j = 0; j < nodeValues.length; j++) {
-                newNodeValues[i] += nodeValues[j] * oldLayer.weights[j][i];
+    public double[] FullyConnectedForwardPass(double[] input){
+        lastInput = input;
+        double[] Z = new double[outLength];
+        double[] a = new double[outLength];
+        for(int i=0; i<inLength; i++){
+            for(int j=0; j<outLength;j++){
+                Z[j] += input[i]*weights[i][j];
             }
-            newNodeValues[i] *= ac.ActivationAbleitung(weightedInputs[i]);
         }
-        return newNodeValues;
-    }
 
-    public void UpdateGradients(double[] nodeValues) {
-        for (int nodeOut = 0; nodeOut < numOutputNodes; nodeOut++) {
-            for (int nodeIn = 0; nodeIn < numInputNodes; nodeIn++) {
-                double derivativeCostWrtWeight = inputs[nodeIn] * nodeValues[nodeOut];
-                CostSteigungW[nodeIn][nodeOut] += derivativeCostWrtWeight;
+        lastZ = Z;
+
+        for(int i=0; i<inLength; i++){
+            for(int j=0; j<outLength;j++){
+                a[j] = Sigmoid(Z[j]);
             }
-            //Hier werden die Änderungsraten für die Biases gespeichert
-            CostSteigungB[nodeOut] = 1 * nodeValues[nodeOut];
         }
-    }
-
-    public void ApplyGradient(double learnrate) {
-        for (int i = 0; i < numOutputNodes; i++) {
-            for (int j = 0; j < numInputNodes; j++) {
-                weights[i][j] -= CostSteigungW[j][i] * learnrate;
-            }
-            //Die Änderungsraten der Biases müssen von den Biases abgezogen werden
-            bias[i] -= CostSteigungB[i]*learnrate;
-        }
-    }
-
-    public void ClearGradient() {
-        this.CostSteigungW = new double[numInputNodes][numOutputNodes];
-        //Die Änderungsraten für die Biases müssen auch zurückgesetzt werden
-        this.CostSteigungB = new double[numOutputNodes];
+        return a;
     }
 
     @Override
     public double[] getOutput(List<double[][]> input) {
-        return getOutput(matrixToVector(input));
+        double[] vector = matrixToVector(input);
+        return getOutput(vector);
     }
 
     @Override
     public double[] getOutput(double[] input) {
-        this.inputs = input;
-        Activation activ = Activation.geActivation();
-        for (int nodeOut = 0; nodeOut < numOutputNodes; nodeOut++) {
-            // double weightedInput = 0;
-            // Wird nun mit dem Bias initialisiert
-            double weightedInput = bias[nodeOut];
-            for (int nodeIn = 0; nodeIn < numInputNodes; nodeIn++) {
-                weightedInput += input[nodeIn] * weights[nodeOut][nodeIn];
-            }
-            weightedInputs[nodeOut] = weightedInput;
-            activations[nodeOut] = activ.ActivationFunction(weightedInput);
-        }
-        if(nextLayer!=null){
-            return nextLayer.getOutput(activations);
+        double[] ForwardPass = FullyConnectedForwardPass(input);
+        if(nextLayer != null){
+            return nextLayer.getOutput(ForwardPass);
         }else{
-            return activations;
+            return ForwardPass;
         }
-    }
-
-    public void backPropagation(double[] expectedOutputs) {
-        double[] nodeValues = expectedOutputs;
-        if (nextLayer == null) {
-            nodeValues = CalculateOutputLayerNodeValues(nodeValues);
-        } else {
-            nodeValues = CalculateHiddenLayerNodeValues(nodeValues);
-        }
-        UpdateGradients(nodeValues);
-    
-        if (previousLayer != null) {
-            previousLayer.backPropagation(nodeValues);
-        }
-    
     }
 
     @Override
-    public void backPropagation(List<double[][]> dLdO) {
-        backPropagation(matrixToVector(dLdO));
+    public void backPropagation(double[] dCda) {
+        double[] dCdx = new double[inLength];
+        double dZdw;
+        double dadZ;
+        double dCdw;
+        double dZda;
+
+        for(int k=0; k<inLength; k++){
+
+            double dCdx_sum = 0;
+
+            for(int j=0; j<outLength; j++){
+                dadZ = SigmoidAbleitung(lastZ[j]);
+                dZdw = lastInput[k];
+                dZda = weights[k][j]; 
+
+                dCdw = dZdw * dadZ * dCda[j];
+
+                weights[k][j] -= dCdw*learnRate;
+
+                dCdx_sum += dZda * dadZ * dCda[j];
+            }
+            dCdx[k] = dCdx_sum;
+        }
+        if(previousLayer!= null){
+            previousLayer.backPropagation(dCdx);
+        }
+    }
+
+    @Override
+    public void backPropagation(List<double[][]> dCda) {
+        double[] vector = matrixToVector(dCda);
+        backPropagation(vector);
     }
 
     @Override
@@ -148,9 +108,49 @@ public class FullyConnectedLayer extends Layer{
     public int getOutputCols() {
         return 0;
     }
-
+  
     @Override
     public int getOutputElements() {
-        return numOutputNodes;
+        return outLength;
     }
+
+    public void setRandomWeights(){
+        Random random = new Random();
+
+        for(int in=0; in<inLength; in++){
+            for(int out=0; out<outLength; out++){
+                weights[in][out] = random.nextGaussian();
+            }
+        }
+    }
+
+    //Die Sigmoid Funktion
+    public double Sigmoid(double weightedInput) {
+        return 1.0 / (1 + Math.exp(-weightedInput));
+    }
+    //Die Ableitung der Sigmoid Funktion
+    public double SigmoidAbleitung(double weightedInput) {
+        double activation = Sigmoid(weightedInput);
+        return activation * (1.0 - activation);
+    }
+    
+    //Die ReLu Funktion
+    public double ReLu(double weightedInput) {
+        if (weightedInput <= 0)
+        return 0.0;
+    else
+        return weightedInput;
+    }
+        
+    //Die Ableitung der ReLu Funktion
+    public double ReLuAbleitung(double weightedInput) {
+        if (weightedInput <= 0)
+            return 0.01; //Leak Value, um Tote bereiche zu vermeiden. Vermutlich bei Sigmoid kein Problem
+        else
+            return 1.0;
+    }
+    
+    
 }
+
+
