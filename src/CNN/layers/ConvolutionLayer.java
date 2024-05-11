@@ -1,6 +1,7 @@
 package CNN.layers;
 
-import static CNN.data.MatrixUtility.*;
+import static CNN.data.MatrixUtility.multiply;
+import static CNN.data.MatrixUtility.add;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +20,7 @@ public class ConvolutionLayer extends Layer {
 
     private List<double[][]> lastInput;
 
-    public ConvolutionLayer(int filterSize, int stepSize, int inLength, int inRows, int inCols,
-            int numFilters, double learnRate) {
+    public ConvolutionLayer(int filterSize, int stepSize, int inLength, int inRows, int inCols, int numFilters, double learnRate) {
         this.filterSize = filterSize;
         this.stepSize = stepSize;
         this.inLength = inLength;

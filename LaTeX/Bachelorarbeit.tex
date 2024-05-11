@@ -766,7 +766,7 @@ public ConvolutionLayer(int filterSize, int stepSize, int inLength, int inRows, 
     }
 \end{lstlisting}
 
-Und in der Methode "generateRandomFilters" wedren die Filter generiert, und mit Zufallszahlen initiiert:
+Und in der Methode "generateRandomFilters" werden die Filter generiert, und mit Zufallszahlen initiiert. Dabei werden die Filter entsprechend der "filterSize" angelegt und die Liste, welche die Filter enthält ist so groß, wie durch "numFilters" angegeben.
 
 \begin{lstlisting}[language=Java]
 private void generateRandomFilters(int numFilters) {
@@ -788,7 +788,24 @@ private void generateRandomFilters(int numFilters) {
     }
 \end{lstlisting}
 
+Die entstandenen Filter werden in einer Liste gespeichert. Die Objektvariablen sehen ähnlich wie in den anderen Schichten so aus:
 
+\begin{lstlisting}[language=Java]
+
+public class ConvolutionLayer extends Layer {
+
+    private List<double[][]> filters;
+    private int filterSize;
+    private int stepSize;
+
+    private int inLength;
+    private int inRows;
+    private int inCols;
+    private double learnRate;
+
+    private List<double[][]> lastInput;
+
+\end{lstlisting}
 
 
 
