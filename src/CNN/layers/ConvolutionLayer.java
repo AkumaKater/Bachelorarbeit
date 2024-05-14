@@ -51,19 +51,21 @@ public class ConvolutionLayer extends Layer {
 
     public List<double[][]> convolutionForwardPass(List<double[][]> list) {
         lastInput = list;
-        List<double[][]> output = new ArrayList<>();
+        List<double[][]> featureMaps = new ArrayList<>();
 
         for (int m = 0; m < list.size(); m++) {
             for (double[][] filter : filters) {
-                output.add(convolve(list.get(m), filter, stepSize));
+                featureMaps.add(convolve(list.get(m), filter, stepSize));
             }
         }
-        return output;
+        return featureMaps;
     }
 
     private double[][] convolve(double[][] input, double[][] filter, int stepSize) {
         int outRows = (input.length - filter.length) / stepSize + 1;
         int outCols = (input[0].length - filter[0].length) / stepSize + 1;
+
+        double[][] featureMap = new double[outRows][outCols];
 
         int inRows = input.length;
         int inCols = input[0].length;
@@ -71,13 +73,11 @@ public class ConvolutionLayer extends Layer {
         int fRows = filter.length;
         int fCols = filter[0].length;
 
-        double[][] output = new double[outRows][outCols];
-
-        int outRow = 0;
-        int outCol;
+        int featureRow = 0;
+        int featureCol;
 
         for (int i = 0; i <= inRows - fRows; i += stepSize) {
-            outCol = 0;
+            featureCol = 0;
             for (int j = 0; j <= inCols - fCols; j += stepSize) {
 
                 double sum = 0.0;
@@ -93,12 +93,12 @@ public class ConvolutionLayer extends Layer {
                     }
                 }
 
-                output[outRow][outCol] = sum;
-                outCol++;
+                featureMap[featureRow][featureCol] = sum;
+                featureCol++;
             }
-            outRow++;
+            featureRow++;
         }
-        return output;
+        return featureMap;
     }
 
     public double[] getOutput(List<double[][]> input) {

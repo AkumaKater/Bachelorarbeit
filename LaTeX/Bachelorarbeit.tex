@@ -134,7 +134,7 @@ Die "learnRate" schränkt die größe der Inkremente zwischen den einzelnen gele
 Mit dem Array "lastZ" und "lastInput" sollen jeweils für die Backpropagation Notwendige Zwischenschritte gespeichert werden. "lastZ" entspricht den Inputs multipliziert mit den Gewichten. Das bedeutet hierbei handelt es sich um die Ergebnisse der Schicht bevor sie durch die Activation Funktion umgerechnet werden. Mit "lastInput" sind einfach die Inputs gemeint, die zuletzt in diese Schicht geleitet wurden, und noch keinen Rechnungen unterlegen sind. Genaueres wird im Unterkapitel zur Backpropagation betrachtet, aber diese Werte sind in den verschiedenen Schritten durch die Kettenregel Notwendig.
 
 
-\subsection{ForwardPass in der Fully Connected Layer}
+\subsection{Forward Propagation in der Fully Connected Layer}
 
 Für den Forward Pass, also die Grundfunktion in der Querry, muss ein Array erstellt werden, welches die outputs der Schicht enthält. Beim Fully Connected Layer entspricht die menge an Outputs der menge der Knoten aus der nächsten Schicht. Ein Wert in der Output menge wird berechnet, indem jeder Input in die Schicht mit dem Gewicht multipliziert wird, welches zwischen jedem Knoten in dieser Schicht und dem Knoten der nächsten Schicht gespeichert wurde. Alle diese Werte werden dann multipliziert, und mit einer Activation Funktion umgerechnet. Dies ist dann der Output, der an die nächste Schicht übergeben wird. Hier im Code wird dieser Output durch das Array "a" dargestellt, um auf das rgebnis der Activation hinzuweisen.
 
@@ -742,7 +742,7 @@ $$W_{out} = (W - filter\_ width)/stride + 1$$
 
 
 \cleardoublepage
-\subsection{Forward Propagation im Convolutional Layer}
+\subsection{Klassenaufbau der Convolutional Layer}
 Grundlegend braucht diese Schicht Filter. Die Filter werden von zwei Parametern gebildet, und zwar "filterSize" und "numFilters". Die Größe der Filter wird dabei von "filterSize" festgelegt, und "numFilters" beschreibt die Anzahl an Filtern. Wir gehen davon aus, dass die Filter immer Quadratisch sind, daher reicht ein Wert um die Größe zu beschreiben.
 
 Darüber hinaus wird wie bei den Pool Layern zuvor, wieder Schritt Größen, also "stepSize", gebraucht. Diese entscheiden, wie viele Pixel der Filter bei einem Schritt überspringt. Wenn diese Größer angelegt werden, werden die Feature maps dementsprechend kleiner, allerdings kann das dazu führen, dass Features nicht erkannt und weiterverarbeitet werden. 
@@ -788,7 +788,9 @@ private void generateRandomFilters(int numFilters) {
     }
 \end{lstlisting}
 
-Die entstandenen Filter werden in einer Liste gespeichert. Die Objektvariablen sehen ähnlich wie in den anderen Schichten so aus:
+Die entstandenen Filter werden in einer Liste gespeichert. Die Objektvariablen sehen ähnlich wie in den anderen Schichten aus. Die Liste "filters" enthält unsere Filter, inLength entspricht der zusammengefassten Menge aller Inputs aus der vorherigen Schicht. "inRows" und "inCols" beschreiben wieder die Abmaßen der Input Bilder. Auch die Learnrate wird in dieser Schicht, so wie in der Fully Connected Schicht berücksichtigt.
+
+Für die Backpropagation müssen auch hier wieder die Inputs während dem Forwardpass zwischengespeichert werden. Die Liste "lastInput" erfüllt diesen Zweck.
 
 \begin{lstlisting}[language=Java]
 
@@ -806,6 +808,111 @@ public class ConvolutionLayer extends Layer {
     private List<double[][]> lastInput;
 
 \end{lstlisting}
+
+
+%\cleardoublepage
+\subsection{Forward Propagation im Convolutional Layer}
+
+Die Wichtigste Operation im Forwardpass ist die anwendung der Cross Correlation. Dazu benötigen wir zuerst eine Methode, welche diese Operation auf jedem Input Bild und für jeden Filter anwenden kann. 
+Wir erstellen die Methode "convolve". Die Übergabeparameter sind ein Bild, auf dem die operation angewendet werden soll, ein Filter, der verwendet werden soll und die Schrittweite, wie viele Pixel übersprungen werden sollen:
+
+\begin{lstlisting}[language=Java]
+private double[][] convolve(double[][] input, double[][] filter, int stepSize) {
+\end{lstlisting}
+
+Als erstes können wir berechnen, wie groß die Feature Map wird, die entstehe wird. Die Formel dazu wurde oben bereits erläutert. Die Größe der Filter und die Schrittweite müssen dabei berücksichtigt werden. Die Feature Map kann dann als 2 Dimensionales Array initialisiert werden:
+
+\begin{lstlisting}[language=Java]
+int outRows = (input.length - filter.length) / stepSize + 1;
+int outCols = (input[0].length - filter[0].length) / stepSize + 1;
+
+double[][] output = new double[outRows][outCols];
+\end{lstlisting}
+
+Als nächstes legen wir zur besseren Lesbarkeit zwei Parameter an, welche die Länge und Größe des Input Bildes beinhalten:
+
+\begin{lstlisting}[language=Java]
+int inRows = input.length;
+int inCols = input[0].length;
+\end{lstlisting}
+
+Und wir benötigen auch die Maße des Filters:
+
+\begin{lstlisting}[language=Java]
+int fRows = filter.length;
+int fCols = filter[0].length;
+\end{lstlisting}
+
+Nun müssen wir über das Input Bild iterieren, und bei jedem Schritt über den Filter iterieren. Dazu verwenden wir 4 Schleifen. Die Äußeren zwei Schleifen wandern über das Bild, und die inneren Schleifen wandern über den Filter. 
+
+Um den Überblick zu behalten, an welche Stelle der jeweils berechnete Wert in dei Feature Map geschrieben wird, werden die zwei Nummern am Anfang initiiert. Sie enthalten die Koordinate auf der Feature Map, die gerade beschrieben werden soll.
+
+Die Ersten zwei Schleifen iterieren über das input Bild. Der jeweilige Schleifenindex enthält die Koordinate, an der der Filter zur Zeit angesetzt werden soll. Dabei soll der Filter von der ersten Reihe oder Zeile, bis zur letzten laufen, allerdings soll der Filter die Grenzen des Bildes nicht überschriten. Daher wird von der länge des Bildes die Länge des Filters abgezogen, und dieser Wert ist der letzte, bis zu dem der Filter angelegt wird. Der jeweilige Schleifenindex wird bei jeder iteration um die Schrittlänge erweitert. auf diese weise läuft der Filter genau wie gewünscht über das Bild.
+
+Die Feature Map Koordinaten werden Parallel zu den äußeren Schleifen stetig angehoben, allerdings immer nur um eins, da die Feature Map mit jedem Sprung der Filter einen Wert erhält.
+
+\begin{lstlisting}[language=Java]
+int featureRow = 0;
+int featureCol;
+for (int i = 0; i <= inRows - fRows; i += stepSize) {
+    featureCol = 0;
+    for (int j = 0; j <= inCols - fCols; j += stepSize) {
+\end{lstlisting}
+
+Bevor es in die inneren Schleifen geht, muss die Summe initialisiert werden, die später in die Felder der Feature Map eingetragen werden. Die Inneren zwei schleifen iterieren dann über alle Felder des Filters. Um die Position des Feldes auf dem Input Bild zu bestimmen, werden die Werte "inputRowIndex" und "inputColIndex" verwendet, welche lediglich aus der Summe zwischen dem Index der Äußeren Zeilen- oder Reihenschleife, und der Inneren- Zeilen oder Reihenschleife bestehen. Die Position des Filters bestehen aus den Schleifen Indizes. Der Wert aus dem Input Bild und der Wert aus dem Filter werden multipliziert, und auf die den "sum" Wert aufaddiert. Sobald alle Felder des Filters abgewandert sind, wird der sum Wert an die entsprechende Stelle in der Feature Map geschrieben.
+
+\begin{lstlisting}[language=Java]
+        double sum = 0.0;
+        // Hier werden Die Filter Eingesetzt
+        for (int x = 0; x < fRows; x++) {
+            for (int y = 0; y < fCols; y++) {
+                int inputRowIndex = i + x;
+                int inputColIndex = j + y;
+                double value = filter[x][y] * input[inputRowIndex][inputColIndex];
+                sum += value;
+            }
+        }
+        featureMap[featureRow][featureCol] = sum;
+        featureCol++;
+    }
+    featureRow++;
+}
+return featureMap;  
+\end{lstlisting}
+
+Die Feature Map wird dann zurück gegeben. Dies muss allerding nicht nur für jedes bild, sondern auch für jeden Filter gemacht werden. Dazu schreiben wir die methode "convolutionForwardPass". Diese benötigt eine Liste an input Bildern, und gibt eine Liste an Feature Maps zurück:
+
+\begin{lstlisting}[language=Java]
+public List<double[][]> convolutionForwardPass(List<double[][]> list) {
+    lastInput = list;
+    List<double[][]> featureMaps = new ArrayList<>();
+
+    for (int m = 0; m < list.size(); m++) {
+        for (double[][] filter : filters) {
+            featureMaps.add(convolve(list.get(m), filter, stepSize));
+        }
+    }
+    return featureMaps;
+}
+\end{lstlisting}
+
+Wichtig hierbei ist zu beachten, dass die Input Bilder in dem Objekt Parameter "lastInput" gespeichert werden. Diese werden für die Backpropagation benötigt.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
