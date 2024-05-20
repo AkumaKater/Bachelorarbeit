@@ -8,4 +8,5 @@ bin/
 # Ignoriere alle Dateien mit der Erweiterung .html
 *.html
 
-Bachelor Vault/Psychologia.md
+Bachelor Vault/Privat/
+Bachelor Vault/.obsidian/
