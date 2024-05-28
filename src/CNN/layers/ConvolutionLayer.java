@@ -141,7 +141,7 @@ public class ConvolutionLayer extends Layer {
                 double[][] newTotalDelta = add(filtersDelta.get(f), delta);
                 filtersDelta.set(f, newTotalDelta);
 
-                double[][] flippedError = flipArrayHorizontal(flipArrayVertical(spacedError));
+                double[][] flippedError = flipArray(spacedError);
                 errorForInput = add(errorForInput, fullConvolve(currentFilter, flippedError));
 
             }
@@ -194,6 +194,10 @@ public class ConvolutionLayer extends Layer {
             }
         }
         return output;
+    }
+
+    public double[][] flipArray(double[][] array) {
+        return flipArrayHorizontal(flipArrayVertical(array));
     }
 
     public double[][] flipArrayHorizontal(double[][] array) {
