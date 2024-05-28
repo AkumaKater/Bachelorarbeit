@@ -49,6 +49,9 @@ public class Main {
             System.out.println("Success rate after round " + (i+1) + ": " + rate);
         }
 
+        rate = nn.test(TrainingsImages.subList(0, 5000));
+        System.out.println("Succes Rate on Trainigsdata: " + rate);
+
         //Dies hier sorgt für die Ausgabe von Filtern
         //System.out.println(nn.getLayers().get(0).toString());
     }
