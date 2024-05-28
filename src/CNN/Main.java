@@ -25,12 +25,13 @@ public class Main {
         //List<Image> TestingImages = new MnistDataReader().getImages("t10k-images.idx3-ubyte");
         System.out.println("Test Data: "+ TestingImages.size());
         
+         double learnRate = 0.1;
 
         NetworkBuilder builder = new NetworkBuilder(28, 28, 256*100);
-        builder.addConvolutionLayer(8, 5, 1, 0.1);
+        builder.addConvolutionLayer(8, 5, 2, learnRate);
         builder.addMaxPoolLayer(2, 3);
-        builder.addFullyConnectedLayer(100, 0.1);
-        builder.addFullyConnectedLayer(10, 0.1);
+        //builder.addFullyConnectedLayer(250, learnRate);
+        builder.addFullyConnectedLayer(10, learnRate);
 
         NeuralNetwork nn = builder.build();
 
