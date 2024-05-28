@@ -90,7 +90,7 @@ public class NeuralNetwork {
             System.out.print('\r');
             index++;
         }
-        System.out.println("100%");
+        System.out.println("Prozent: 100%");
     }
 
     public List<Layer> getLayers() {
