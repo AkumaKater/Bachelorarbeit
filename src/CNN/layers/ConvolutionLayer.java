@@ -122,7 +122,7 @@ public class ConvolutionLayer extends Layer {
     @Override
     public void backPropagation(List<double[][]> dLdO) {
         List<double[][]> filtersDelta = new ArrayList<>();
-        List<double[][]> dLd0PreviousLayer = new ArrayList<>();;
+        List<double[][]> dLd0PreviousLayer = new ArrayList<>();
         for (int f = 0; f < filters.size(); f++) {
             filtersDelta.add(new double[filterSize][filterSize]);
         }
@@ -157,6 +157,31 @@ public class ConvolutionLayer extends Layer {
             previousLayer.backPropagation(dLd0PreviousLayer);
         }
 
+    }
+
+    public void backPropagationHalfe(List<double[][]> dLdO) {
+        List<double[][]> filtersDelta = new ArrayList<>();
+        for (int f = 0; f < filters.size(); f++) {
+            filtersDelta.add(new double[filterSize][filterSize]);
+        }
+
+        for (int i = 0; i < lastInput.size(); i++) {
+            for (int f = 0; f < filters.size(); f++) {
+                double[][] error = dLdO.get(i * filters.size() + f);
+
+                double[][] spacedError = spaceArray(error);
+                double[][] dLdF = convolve(lastInput.get(i), spacedError, 1);
+
+                double[][] delta = multiply(dLdF, learnRate * -1);
+                double[][] newTotalDelta = add(filtersDelta.get(f), delta);
+                filtersDelta.set(f, newTotalDelta);
+
+            }
+        }
+        for (int f = 0; f < filters.size(); f++) {
+            double[][] modified = add(filtersDelta.get(f), filters.get(f));
+            filters.set(f, modified);
+        }
     }
 
     @Override
@@ -228,15 +253,15 @@ public class ConvolutionLayer extends Layer {
         return output;
     }
 
-    private double[][] fullConvolve(double[][] input, double[][] filter) {
-        int outRows = (input.length + filter.length) + 1;
-        int outCols = (input[0].length + filter[0].length) + 1;
+    private double[][] fullConvolve(double[][] currentFilter, double[][] flippedError) {
+        int outRows = (currentFilter.length + flippedError.length) + 1;
+        int outCols = (currentFilter[0].length + flippedError[0].length) + 1;
 
-        int inRows = input.length;
-        int inCols = input[0].length;
+        int inRows = currentFilter.length;
+        int inCols = currentFilter[0].length;
 
-        int fRows = filter.length;
-        int fCols = filter[0].length;
+        int fRows = flippedError.length;
+        int fCols = flippedError[0].length;
 
         double[][] output = new double[outRows][outCols];
 
@@ -257,7 +282,7 @@ public class ConvolutionLayer extends Layer {
 
                         if (inputRowIndex >= 0 && inputColIndex >= 0 && inputRowIndex < inRows
                                 && inputColIndex < inCols) {
-                            double value = filter[x][y] * input[inputRowIndex][inputColIndex];
+                            double value = flippedError[x][y] * currentFilter[inputRowIndex][inputColIndex];
                             sum += value;
                         }
 

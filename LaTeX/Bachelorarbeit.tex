@@ -104,8 +104,8 @@ Alle Knoten einer Schicht, sind mit allen Knoten der nächsten Schicht verbunden
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.50]{./Images/BA_002_FeedForwardNetzwerk.jpg}
-\caption{Das Neuron}
-\label{Was kommt hier rein?}
+\caption{Das Neuronale Netzwerk}
+\label{Das Neuronale Netzwerk}
 \end{figure}
 
 Besonders für Lineare Problemen, die nicht durch den Nullpunkt eines Koordinatensystems gehen ist es Notwendig, auch Biases mit einzurechnen. Für die Bild Erkennung ist das normalerweise nicht wichtig, und da sich die Convolutions auf die Bilderkennung Spezialisieren, wird es für dieses Projekt nicht notwendig sein, Biases einzuplanen.
@@ -124,24 +124,30 @@ public class FullyConnectedLayer extends Layer {
     private double[] lastZ;
     private double[] lastInput;
 \end{lstlisting} 
-in den "weights" werden die Gewichte gespeichert zwischen den Inputs und den Knoten der Schicht. Diese können angepasst werden, um den Fehler des Netzwerkes zu minimieren, damit es korrekte Klassifizierungen vornehmen kann.
+in den "weights" werden die Gewichte gespeichert zwischen den Inputs und den Knoten der Schicht. Diese können angepasst werden, um den Fehler des Netzwerkes zu minimieren und damit korrekte Klassifizierungen vorgenommen werden können.
 Mit "inLength" ist die Menge an Inputs gemeint, das heißt zum Beispiel wie viele Pixel die Bilder haben, die in die Schicht eingespeißt werden.
-Mit "outLength" entspricht dann auch der Menge an Outputs welche von der Schicht erzeugt werden, das hängt davon ab, wie viele Knoten die nächste Schicht hat, oder wenn es die letzte Schicht ist, wie viele mögliche Antworten das Netzwerk hat.
-Die "learnRate" schränkt die größe der Inkremente zwischen den einzelnen gelernten Bildern ein. Dies ist Notwendig, da die berechneten inkremente, also die Steigung im Fehlergraphen, normalerweise zu groß ist, und die Fehler Minima dadurch häufig übersprungen werden. Das netzwerk soll sich aber dem Fehlerminimum annähern, also müssen die Schritte kleiner sein. Zu klein sollten sie aber auch nicht sein, weil das Netzwerk dadurch deutlich langsamer wird, und eine zu langsame Annäherung nicht Vorteilhaft ist.
+Der Parameter "outLength" entspricht dann auch der Menge an Outputs welche von der Schicht erzeugt werden. Das hängt davon ab, wie viele Knoten die nächste Schicht hat, oder wenn es die letzte Schicht ist, wie viele mögliche Antworten das Netzwerk hat.
+Die "learnRate" schränkt die größe der Inkremente zwischen den einzelnen gelernten Bildern ein. Dies ist Notwendig, da die berechneten Inkremente, also die Steigung im Fehlergraphen, normalerweise zu groß sind, und die Fehler Minima dadurch häufig übersprungen werden. Das Netzwerk soll sich aber dem Fehlerminimum langsam annähern, also müssen die Schritte kleiner sein. Zu klein sollten sie aber auch nicht sein, weil das Netzwerk dadurch deutlich langsamer wird, und eine zu langsame Annäherung unter Umständen das Ziel nicht erreicht, bevor der Lernprozess abgeschlossen ist..
 
-%TODO Bild von Lernrate zu groß und zu klein
+%DONE Bild von Lernrate zu groß und zu klein
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{./Images/BA_006_LearnRate.jpg}
+\caption{Learn Rate}
+\label{Learn Rate}
+\end{figure}
 
-Mit dem Array "lastZ" und "lastInput" sollen jeweils für die Backpropagation Notwendige Zwischenschritte gespeichert werden. "lastZ" entspricht den Inputs multipliziert mit den Gewichten. Das bedeutet hierbei handelt es sich um die Ergebnisse der Schicht bevor sie durch die Activation Funktion umgerechnet werden. Mit "lastInput" sind einfach die Inputs gemeint, die zuletzt in diese Schicht geleitet wurden, und noch keinen Rechnungen unterlegen sind. Genaueres wird im Unterkapitel zur Backpropagation betrachtet, aber diese Werte sind in den verschiedenen Schritten durch die Kettenregel Notwendig.
+Mit dem Array "lastZ" und "lastInput" sollen jeweils für die Backpropagation Notwendige Zwischenschritte gespeichert werden. "lastZ" entspricht den Inputs multipliziert mit den Gewichten. Das bedeutet hierbei handelt es sich um die Ergebnisse der Schicht bevor sie durch die Activation Funktion umgerechnet werden. Mit "lastInput" sind einfach die Inputs gemeint, die zuletzt in diese Schicht geleitet wurden, und noch keinen Rechnungen unterlegen sind. Genaueres wird im Unterkapitel zur Backpropagation betrachtet, aber diese Werte werden uns später noch von Nutzen sein.
 
 
 \subsection{Forward Propagation in der Fully Connected Layer}
 
-Für den Forward Pass, also die Grundfunktion in der Querry, muss ein Array erstellt werden, welches die outputs der Schicht enthält. Beim Fully Connected Layer entspricht die menge an Outputs der menge der Knoten aus der nächsten Schicht. Ein Wert in der Output menge wird berechnet, indem jeder Input in die Schicht mit dem Gewicht multipliziert wird, welches zwischen jedem Knoten in dieser Schicht und dem Knoten der nächsten Schicht gespeichert wurde. Alle diese Werte werden dann multipliziert, und mit einer Activation Funktion umgerechnet. Dies ist dann der Output, der an die nächste Schicht übergeben wird. Hier im Code wird dieser Output durch das Array "a" dargestellt, um auf das rgebnis der Activation hinzuweisen.
+Für den Forward Pass, also die Grundfunktion in der Querry, muss ein Array erstellt werden, welches die outputs der Schicht enthält. Beim Fully Connected Layer entspricht die menge an Outputs der menge der Knoten aus der nächsten Schicht. Ein Wert in der Output menge wird berechnet, indem jeder Input in die Schicht mit dem Gewicht multipliziert wird, welches zwischen jedem Knoten in dieser Schicht und dem Knoten der nächsten Schicht gespeichert wurde. Alle diese Werte werden dann multipliziert, und mit einer Activation Funktion umgerechnet. Dies ist dann der Output, der an die nächste Schicht übergeben wird. Hier im Code wird dieser Output durch das Array "a" dargestellt, um auf das Ergebnis der Activation hinzuweisen.
 
-Abgesehen davon werden allerdings auch noch die Werte lastInput und das Array "Z" zwischengespeichert. Diese Werte sind für die Backpropagation notwendig, daher werden die Details auch erst im nächsten Kapitel behandelt. Aber im Prinzip steht das Array "Z" für die Zwischenergebnisse, die noch mit der Activation Funktion verrechnet werden müssen. Dieses Zwischenergebnis ist für die Backpropagation wichtig, und muss daher zwischengespeichert werden.
+Abgesehen davon werden allerdings auch noch die Werte lastInput und das Array "Z" zwischengespeichert. Diese Werte sind für die Backpropagation notwendig, daher werden die Details auch erst im nächsten Kapitel behandelt. Aber im Prinzip steht das Array "Z" für die Zwischenergebnisse, die noch mit der Activation Funktion verrechnet werden müssen.
 
-"lastInput" ist an sich selbserklärend, hier wird einfach der letzte Input zwischengespeichert, also einfach die Werte, die bei der Querry aus der letzten Schicht eingereicht wurden, und noch nicht weiter verrechnet wurden.
-
+"lastInput" ist an sich Selbs erklärend, hier wird einfach der letzte Input zwischengespeichert, also einfach die Werte, die bei der Querry aus der letzten Schicht eingereicht wurden, und noch nicht weiter verrechnet wurden.
+\clearpage
 \begin{lstlisting}[language=Java]
     public double[] FullyConnectedForwardPass(double[] input){
         lastInput = input;
@@ -158,7 +164,6 @@ Abgesehen davon werden allerdings auch noch die Werte lastInput und das Array "Z
 Nach dieser Schleife sind die Inputs mit den Gewichten verrechnet, aber die Activation Funktion wurde noch nicht angewendet. Also sollten diese Werte unter "lastZ" zwischengespeichert werden.
 \begin{lstlisting}[language=Java] 
         lastZ = Z;
-		
 		//Diese Schleife wendet auf alle Outputs die Activation Funktion an, in diesem Falle die Sigmoid Funktion
         for(int i=0; i<inLength; i++){
             for(int j=0; j<outLength;j++){
@@ -169,18 +174,17 @@ Nach dieser Schleife sind die Inputs mit den Gewichten verrechnet, aber die Acti
     }
 \end{lstlisting} 
 
-Der Array der zurückgegeben wird, ist der Komplette berechnete Output, und kann so an die nächste Schicht weitergeleitet werden. Im Convolutional Network kommen mehrere Schichten Fully Connected layer immer ans Ende. Die Convolution Layer und die MaxPool Layer sind auf die Erkennung von Features in Bildern und auf die Komprimierung und Verdichtung relevanter Daten in den Bildern Spezialisiert. Daher macht es keinen Sinn, diese Schichten nach einem Fully Connected Layer einzusetzten. Das Bild kann aus den Ausgaben einer Fully Connected Layer nicht wieder rekonstruiert werden, und ist daher für die anderen Schichten nicht mehr nutzbar. Es kann also davon ausgegangen werden, dass nach einem Fully Connected Layer nur noch weitere Fully Connected Layer auftreten werden. 
+Das Array welches zurückgegeben wird, ist der komplette berechnete Output, und kann so an die nächste Schicht weitergeleitet werden. Im Convolutional Network kommen die Fully Connected Schichten immer ans Ende. Die Convolution Layer und die MaxPool Layer sind auf die Erkennung von Features in Bildern und auf die Komprimierung und Verdichtung relevanter Daten in den Bildern Spezialisiert. Daher macht es keinen Sinn, diese Schichten nach einem Fully Connected Layer einzusetzten. Das Bild kann aus den Ausgaben einer Fully Connected Layer nicht wieder rekonstruiert werden, und ist daher für die anderen Schichten nicht mehr nutzbar. Es kann also davon ausgegangen werden, dass nach einem Fully Connected Layer nur noch weitere Fully Connected Layer auftreten werden. 
 Außerdem soll hier angemerkt werden, dass die Convolution und Pool Layer zwar die Bilderkennung Positiv beeinflussen, simple Netzwerke bereits rein und ausschließlich mit Fully Connected Layeren aufgebaut werden können. Diese sind zwar sehr anfällig auf leichte Veränderunegn der Inputs, und die Genauigkeit lässt daher ein wenig zu wünschen übrig, aber durchaus verlässliche Ergebnisse können damit schon erzielt werden.
 
-Da die Outputs der Fully Connected Layer keine direkten rückschlüsse auf die Bilder zulassen, die zu Anfang in das netzwerk gegeben werden, wird bei den in der Abstrakten Klasse definierten Methoden zur Rückgabe der verschiedenen Parameter auch anders verfahren, als in den anderen Layer Klassen. Die anderen Layer Klassen müssen Auskunft darüber geben können, wie viele Output Bilder sie erzeugen, und welche Dimensionen diese besitzen. Zum Beispiel gibt die Max Pool Layer zwar komprimierte Bilder zurück, das heißt dass die Dimensionen kleiner geworden sind. Allerdings werden alle Bilder, die in die Schicht eintreten, mit jedem Filter Fenster verrechnet, welches die Schicht besitzt. Das heißt die menge der Output Bilder ist die Menge der Input Bilder mal die Menge der Filter. Diese Informationen sind für die nachfolgenden Schichten von großem Wert. Bei den Fully Connected layern können nur Fully Connected layer folgen, also ist auch nur die Menge der Inputs wichtig, da Fully Connected Layer die Inputs als ein einziges 1-Dimensionales Array betrachten. Also muss nur die "getOutputElements" Methode sinnvoll betrachtet werden, diese gibt einfach die "outLength" Variable zurück. Alle anderen get-Methoden können 0 zurück geben.
+Da die Outputs der Fully Connected Layer keine direkten Rückschlüsse auf die Bilder zulassen, die zu Anfang in das Netzwerk gegeben werden, wird bei den in der Abstrakten Klasse definierten Methoden zur Rückgabe der verschiedenen Parameter auch anders verfahren, als in den anderen Layer Klassen. Die anderen Layer Klassen müssen Auskunft darüber geben können, wie viele Output Bilder sie erzeugen, und welche Dimensionen diese besitzen. Zum Beispiel gibt die Max Pool Layer zwar komprimierte Bilder zurück, das heißt dass die Dimensionen kleiner geworden sind. Allerdings werden alle Bilder, die in die Schicht eintreten, mit jedem Filter Fenster verrechnet, welches die Schicht besitzt. Das heißt die menge der Output Bilder ist die Menge der Input Bilder mal die Menge der Filter. Diese Informationen sind für die nachfolgenden Schichten von großem Wert. Bei den Fully Connected layern können nur Fully Connected layer folgen, also ist auch nur die Menge der Inputs wichtig, da Fully Connected Layer die Inputs als ein einziges 1-Dimensionales Array betrachten. Also muss nur die "getOutputElements" Methode sinnvoll betrachtet werden, diese gibt einfach die "outLength" Variable zurück. Alle anderen get-Methoden können 0 zurück geben.
 
 \begin{lstlisting}[language=Java] 
-    @Override
     public int getOutputElements() {
         return outLength;
     }
 \end{lstlisting} 
-
+\clearpage
 \subsection{Backpropagation im Fully Connected Layer}
 Backpropagation ist der Prozess, den Fehler, den ein Netzwerk macht zu Quantifizieren, und dann über alle Schichten zurückzuverfolgen. Dabei wird durch das Ableiten der Fehlerfunktion festgestellt, wie die Gewichte oder andere veränderbaren Attribute angepasst werden müssen, um sich dem Fehlerminimum zu nähern. Das Fehlerminimum wird durch kleine, inkrementelle Schritte angepeilt. Diese Schrittweise Annäherung nennt man Gradient Descent. 
 
@@ -195,11 +199,12 @@ Das lässt sich auch algorithmisch notieren:
 
 $$w^k:=w^{k-1}-\lambda C'(w^{k-1}), k \geq 1$$
 
-wobei $\lambda > 0$ ist, denn $\lambda$ entspricht der Learnrate, also dem Skalierungsmaß für die Inkremente, in denen die gewichte angepasst werden. Ohne das Skalierungsmaß wären die Anpassungen zu groß, und würden die Fehlertiefpunkte regelmäßig weit überspringen, anstatt sich ihnen anzunähern [1, S.114 ff.]. 
+wobei $\lambda > 0$ ist, denn $\lambda$ entspricht der Learnrate, also dem Skalierungsmaß für die Inkremente, in denen die Gewichte angepasst werden. Ohne das Skalierungsmaß wären die Anpassungen zu groß, und würden die Fehlertiefpunkte regelmäßig weit überspringen, anstatt sich ihnen anzunähern [1, S.114 ff.]. 
 
 Zuerst sollte man die Fehlerfunktion betrachten. 
-Es sei der letzte Output aus dem Netzwerk genannt $O_L$. Außerdem werden die Targets für das Bild benötigt. Um ein Neuronales Netzwerk zu trainieren, braucht man nicht nur die zu klassifizierenden Inputs, diese Inputs müssen auch mit Labeln versehen sein. Ein Label gibt an, was auf dem Bild zu sehen ist. Das Ziel ist es, dass das Netzwerk eine ausgabe macht, die sich möglichst wenig von dem Label unterscheidet. Hier kommen die targets ins Spiel. Im Prinzip erstellt man ein Array, welches für jede Antwortmöglichkeit des Netzwerkes ein Feld besitzt. Das Feld, das dem label entspricht, wird auf 1 gesetzt, alle anderen Felder werden auf 0 gesetzt. Dies sind die Targets $T$.
-Um nun die Loss Funktion, also die Fehlerfunktion zu berechnen, müsste man nur die Targets von den Outputs abziehen, allerdings müssen die Ergebnisse noch Quadriert werden. Das hat zwei Vorteile, der erste Vorteil ist, dass Fehler dadurch betont werden. Große Fehler haben dadurch einen noch größeren einfluss. Das hilft, sich nicht zu schnell oder zu langsam dem Fehlerminimum anzupassen. Der zweite Vorteil ist der dass durch das Quadrieren alle Fehler Positiv werden. Alle Fehler müssen nachher summiert werden. Wenn es Positive und negative Fehler gibt, würden sich diese gegenseitig aufheben. 
+Es sei der letzte Output aus dem Netzwerk genannt $O_L$. Außerdem werden die Targets, also die angestrebten Werte, für das Bild benötigt. Um ein Neuronales Netzwerk zu trainieren, braucht man nicht nur die zu klassifizierenden Inputs, diese Inputs müssen auch mit Labeln versehen sein. Ein Label gibt an, was auf dem Bild zu sehen ist. Das Ziel ist es, dass das Netzwerk eine Ausgabe macht, die sich möglichst wenig von dem Label unterscheidet. Hier kommen die Targets ins Spiel. Im Prinzip erstellt man ein Array, welches für jede Antwortmöglichkeit des Netzwerkes ein Feld besitzt. Das Feld, das dem Label entspricht, wird auf 1 gesetzt, alle anderen Felder werden auf 0 gesetzt. Dies sind die Targets $T$.
+
+Um nun die Loss oder auch Cost Funktion $C$, also die Fehlerfunktion zu berechnen, müsste man nur die Targets von den Outputs abziehen, allerdings sollten die Ergebnisse noch Quadriert werden. Das hat zwei Vorteile, der erste Vorteil ist, dass Fehler dadurch betont werden. Große Fehler haben dadurch einen noch größeren Einfluss. Das hilft, sich nicht zu schnell oder zu langsam dem Fehlerminimum anzupassen. Der zweite Vorteil ist der, dass durch das Quadrieren alle Fehler Positiv werden. Alle Fehler müssen nachher summiert werden. Wenn es Positive und negative Fehler gibt, würden sich diese gegenseitig aufheben. 
 Alles in allem sieht die Fehlerfunktion für dieses Netzwerk dann so aus:
 
 $$C_0 = (O_L - T)^2$$
@@ -221,10 +226,12 @@ Diese Terme können einzeln entschlüsselt und im Code verwendet werden. Der ers
 
 $$\frac{\delta Z_L}{\delta w_L}$$
 
-und beschreibt die Ableitung der Berechnung in den Knoten bevor die Transferfunktion, also zum Beispiel die Sigmoid Funktion eingesetzt wurde, im Bezug zu den Gewichten der letzten Schicht.
+und beschreibt die Ableitung der Berechnung in den Knoten bevor die Transferfunktion, also zum Beispiel die Sigmoid Funktion eingesetzt wird, im Bezug zu den Gewichten der letzten Schicht.
 Diese Berechnung sieht erst einmal so aus:
-Jede Schicht besitzt eine Menge an Knoten, die den Neuronen des Gehirns nachempfunden sind. Ein Knoten ist mit allen Inputs verknüpft, also mit dem Bild das in die erste Schicht geleitet wird, oder alle ausgaben der vorrigen Schicht, wenn es sich nicht um die erste Schicht handelt. Diese Verbindungen sind gewichtet, um die stärke der Synaptischen Verknüpfung zwischen den Neuronen darzustellen. Diese Gewichte werden bei der Backpropagation angepasst. Im Netzwerk werden die Gewichte in einer Matrix gespeichert, hier heißt sie "weights". 
-Um einen einzelnen Knoten k zu berechnen iteriert man über alle Inputs, multipliziert diese mit dem jeweiligen Gewicht zwischen dem input und dem Knoten, also $w_{ik}$, und summiert die Ergebnisse:
+
+Jede Schicht besitzt eine Menge an Knoten, die den Neuronen des Gehirns nachempfunden sind. Ein Knoten ist mit allen Inputs verknüpft, also mit dem Bild das in die erste Schicht geleitet wird, oder alle Ausgaben der vorigen Schicht, wenn es sich nicht um die erste Schicht handelt. Diese Verbindungen sind gewichtet, um die stärke der Synaptischen Verknüpfung zwischen den Neuronen darzustellen. Diese Gewichte werden bei der Backpropagation angepasst. Im Netzwerk werden die Gewichte in einer Matrix gespeichert, hier heißt sie "weights". 
+
+Um einen einzelnen Knoten k zu berechnen iteriert man über alle Inputs, multipliziert diese mit dem jeweiligen Gewicht zwischen dem Input und dem Knoten, also $w_{ik}$, und summiert die Ergebnisse:
 
 
 $$Z_{Lk}=\sum_{i = 1}^{n}w_{ik}*x_i$$
@@ -233,7 +240,7 @@ Im Prinzip muss also nur der Term $w_{ik}*x_i$ im Bezug auf die Gewichte abgelei
 
 $$\frac{\delta Z_L}{\delta w_L}=x_i$$
 
-Wie wir sehen entspricht x einfach den Inputs aus der vorigen Schicht. Diese sollten also beim Forwardpass auf jeden Fall immer zwischengespeichert werden, im hier in der Backpropagagtion benutzt werden zu können. Dies wurde im letzten Kapitel schon vorbereitet.
+Wie wir sehen entspricht x einfach den Inputs aus der vorigen Schicht. Diese sollten also beim Forwardpass auf jeden Fall immer zwischengespeichert werden, um hier in der Backpropagagtion benutzt werden zu können. Dies wurde im letzten Kapitel schon vorbereitet.
 
 Der nächste Term 
 $$\frac{\delta a_L}{\delta Z_L}$$ Beschäftigt sich mit dem Einfluss von $Z_L$ auf die Ableitung von der Activation Funktion. Es gibt verschiedene Transferfunktionen $T(x)$, und zwei werden besonders häufig verwendet. Zum einen die Sigmoid Funktion, zum anderen ReLu. 
@@ -250,7 +257,7 @@ x für $x\geq 0$
 :=T_1(x)
 $$
 
-Die Ableitung davon ist auch denkbar einfach, Unter 0 hat die x keinen einfluss, über 0 hat es einen direkten einfluss, also 1.
+Die Ableitung davon ist auch denkbar einfach, Unter 0 hat die x keinen einfluss, über 0 hat es einen direkten Einfluss, also 1.
 
 $$
 T'(x):=
@@ -326,7 +333,7 @@ $$\frac{\delta Z_L}{\delta w_L} \rightarrow dZdw $$ \\
 $$\frac{\delta a_L}{\delta Z_L} \rightarrow dadZ $$ \\
 $$\frac{\delta C_0}{\delta a_L} \rightarrow dCda $$ \\
 
-nachdem die Namenskonvention geklärt ist, kann der Code erstellt werden:
+Nachdem die Namenskonvention geklärt ist, kann der Code erstellt werden:
 
 \begin{lstlisting}[language=Java] 
     public void backPropagation2(double[] dCda) {
@@ -356,10 +363,11 @@ Das Ergebnis dieser Rechnung ist die Steigung der Fehlerfunktion, an der Stelle,
 Wenn die Steigung Negativ ist, liegt das Fehlerminimum voraus, also sollte das Gewicht vergrößert werden.
 Wichtig an dieser Stelle ist noch zu beachten, dass die berechnete Änderungsrate zu groß ist, und mit der LearnRate multipliziert werden muss, bevor der Wert von den Gewichten abgezogen wird. Es könnte sonst dazu kommen, dass das Fehlerminimum übersprungen wird.
 
-Dies ist de vollständige Berechnng der Anpassungs der Gewichte in der letzten Schicht. Aber wie wird nun die vorletzte Schicht angepasst? und die Schicht davor?
+Dies ist die vollständige Berechnug der Anpassung der Gewichte in der letzten Schicht. Aber wie wird nun die vorletzte Schicht angepasst? und die Schicht davor?
+
 Im Prinzip muss der Fehler weiter durch das Netzwerk zurückgereicht werden, und in jeder Schicht, die anpassbare Parameter hat, müssen diese Parameter so angepasst werden, wie sie für den Fehler verantwortlich waren.
 
-Dies kann vollständig modular aufgebaut werden, sodass eine völlig variable anzahl an Schichten möglich werden. Wenn man die Ableitung der Cost Funktion im Bezug auf die Gewichte der letzten Schicht, und die Ableitung der Cost Funktion im bezug auf die Gewichte der Vorletzten Schicht miteinander vergleicht, so fällt auf, dass es Terme gibt, die zum Teil völlig gleich sind, das es einen term gibt der sich verändert, und dass es zwei neue Terme gibt, die sich von alten termen nur darin unterscheiden, dass sie Inputs uas der Vorletzten, anstatt aus der letzten Schicht benötigen.
+Dies kann vollständig modular aufgebaut werden, sodass eine völlig variable Anzahl an Schichten möglich werden. Wenn man die Ableitung der Cost Funktion im Bezug auf die Gewichte der letzten Schicht, und die Ableitung der Cost Funktion im Bezug auf die Gewichte der Vorletzten Schicht miteinander vergleicht, so fällt auf, dass es Terme gibt, die zum Teil völlig gleich sind, dass es einen Term gibt der sich verändert, und dass es zwei neue Terme gibt, die sich von alten Termen nur darin unterscheiden, dass sie Inputs aus der Vorletzten, anstatt aus der letzten Schicht benötigen.
 
 Diesmal wird die Änderungsrate der Cost Funktion $C$ gesucht, in Abhängigkeit von den Gewichten der vorletzten Schicht, $w_{(L-1)}$.
 
@@ -397,7 +405,7 @@ $$
 
 $\frac{\delta C_0}{\delta a_{(L-1)}}$ kann einfach an die nächste Backpropagation Methode übergeben werden.
 
-Dort, in der vorletzten Schicht, wird das gleiche getan, wie zuvor in der Letzten Schicht. Die Eingabe, "dCda", wird mit diesen Termen verrechnet:
+Dort, in der vorletzten Schicht, wird das gleiche getan, wie zuvor in der letzten Schicht. Die Eingabe, "dCda", wird mit diesen Termen verrechnet:
 
 $$
 \frac{\delta Z_{(L-1)}}{\delta w_{(L-1)}}*
@@ -411,20 +419,19 @@ Um eine kleine Zusammenfassung zu schaffen:
 
 Jede Schicht muss 3 Terme miteinander multiplizieren. 
 
-Der erste Term beschreibt die ableitung der Cost Funktion im Bezug auf die Outputs der aktuellen Schicht. Bei der letzten Schicht im Netzwerk, also der ersten Schicht im Backpropagation Verfahren, ist das einfach die Ableitung der Cost Funktion, welche zum berechnen die Outputs des Netzwerks, und die erwarteten Werte der Inputs des Netzwerkes benötigt. In allesn weiteren Schichten handelt es sich dabei um errechnete Werte aus den anderen Schichten, welche übergeben werden. Ab hier werden sie "dCd0" genannt, da der Name "dZda" anderweitig noch gebraucht wird.
+Der erste Term beschreibt die ableitung der Cost Funktion im Bezug auf die Outputs der aktuellen Schicht. Bei der letzten Schicht im Netzwerk, also der ersten Schicht im Backpropagation Verfahren, ist das einfach die Ableitung der Cost Funktion, welche zum berechnen die Outputs des Netzwerks, und die erwarteten Werte der Inputs des Netzwerkes benötigt. In allesn weiteren Schichten handelt es sich dabei um errechnete Werte aus den anderen Schichten, welche übergeben werden. Ab hier werden sie im Code "dCd0" genannt, da der Name "dZda" anderweitig noch gebraucht wird.
 
-Der 2 Term sieht in jeder Schicht gleich aus, es kommt hierbei lediglich auf die Inputs an. Es handelt sich um die ableitung der Activation Funktion, im Bezug auf die Gewichteten Inputs.
+Der zweite Term sieht in jeder Schicht gleich aus, es kommt hierbei lediglich auf die Inputs an. Es handelt sich um die Ableitung der Activation Funktion, im Bezug auf die gewichteten Inputs.
 
 $$\frac{\delta a}{\delta Z}$$
 
 Dieser Schritt wurde zuvor schon implementiert.
-Übrig bleibt also nur der letzte Term. diesen gibt es in zwei ausführungen, und zwar einmal um die Gewichte der aktuellen Schicht anzupassen, und einmal um die Werte zu berechnen, die an die nächste Schicht im Backpropagation Verfahren gereicht werden sollen.
+Übrig bleibt also nur der letzte Term. diesen gibt es in zwei Ausführungen, und zwar einmal um die Gewichte der aktuellen Schicht anzupassen, und einmal um die Werte zu berechnen, die an die nächste Schicht im Backpropagation Verfahren gereicht werden sollen.
 Um die Gewichte anzupassen, benötigt man hierbei die Inputs aus der letzten Schicht, und auch dies wurde bereits Implementiert. Es bleibt nur noch die Berechnung für die nächste Schicht. Wie weiter oben schon festgestellt, handelt es sich dabei um die gewichte der Aktuellen Schicht. 
 Nun zur Form. Es geht immer noch darum, die Fehler, die das Netzwerk gemacht hat, an die Schichten weiterzureichen. Daher muss ein Vektor erstellt werden, der den Outputs der vorherigen Schicht entspricht, und die Fehler enthält, die von der Schicht verursacht wurden.
-Dieser Vektor wird nun als "dCda" erstellt, denn er soll immerhin die Änderngsraten enthalten, die durch die Ableitung der Cost Funktion im Bezug auf die Outputs "a" der vorherigen Schicht berechnet wurden. Eine weiter neue Variable ist der double "dZda", welcher schlichtweg das Gewicht enthält, welches gerade angepasst werden soll.
+Dieser Vektor wird nun "dCda" genannt, denn er soll immerhin die Änderungsraten enthalten, die durch die Ableitung der Cost Funktion im Bezug auf die Outputs "$a$" der vorherigen Schicht berechnet wurden. Eine weitere neue Variable ist der double "dZda", welcher schlichtweg das Gewicht enthält, welches gerade angepasst werden soll.
 
 \begin{lstlisting}[language=Java]
-    @Override
     public void backPropagation(double[] dCd0) {
         double[] dCda = new double[inLength];
         double dZdw;
@@ -432,32 +439,29 @@ Dieser Vektor wird nun als "dCda" erstellt, denn er soll immerhin die Änderngsr
         double dCdw;
         double dZda;
 \end{lstlisting} 
-In der äußeren Schleife wird nun eine Variable "dCda\_sum" geführt. In dieser werden alle Änderungsraten der Cost Funktion im Bezug auf die Inputs der letzten Schicht aufsummiert. Dieser Wert wird für jeden input der aktuellen Schicht erstellt und im Vektor "dCda" gespeichert.
+In der äußeren Schleife wird nun eine Variable "dCda\_sum" geführt. In dieser werden alle Änderungsraten der Cost Funktion im Bezug auf die Inputs der letzten Schicht aufsummiert. Dieser Wert wird für jeden Input der aktuellen Schicht erstellt und im Vektor "dCda" gespeichert.
 \begin{lstlisting}[language=Java]  
         for(int k=0; k<inLength; k++){
-
             double dCda_sum = 0;
 
             for(int j=0; j<outLength; j++){
                 dZdw = lastInput[k];
                 dadZ = SigmoidAbleitung(lastZ[j]);
 \end{lstlisting} 
-In der inneren Schleife werden nun auch die entsprechenden Gewichte festgehalten. Wie zuvor werden nun die Änderungsraten für die aktuellen gewichte berechnet und werden angewandt.
+In der inneren Schleife werden nun auch die entsprechenden Gewichte festgehalten. Wie zuvor werden nun die Änderungsraten für die aktuellen Gewichte berechnet und angewandt.
 \begin{lstlisting}[language=Java]  
                 dZda = weights[k][j]; 
-
                 dCdw = dZdw * dadZ * dCd0[j];
-
                 weights[k][j] -= dCdw*learnRate;
 \end{lstlisting} 
-Zuletzt wird aber die Änderungsrate der Cost Funktion im Bezug auf die Inputs der vorherigen Schicht berechnet. Statt dem letzten Input wird hier das Aktuelle gewicht multipliziert, und zur variable "dCda\_sum" hinzugefügt.
+Zuletzt wird aber die Änderungsrate der Cost Funktion im Bezug auf die Inputs der vorherigen Schicht berechnet. Statt dem letzten Input wird hier das Aktuelle Gewicht multipliziert, und zur variable "dCda\_sum" hinzugefügt.
 \begin{lstlisting}[language=Java]              
                 dCda_sum += dZda * dadZ * dCd0[j];
             }
             dCda[k] = dCda_sum;
         }
 \end{lstlisting} 
-Nach den Schleifen muss nur noch die Backpropagation Methode der vorherige Schicht aufgerufen werden, und dieser der vector "dCda" übergeben werden.
+Nach den Schleifen muss nur noch die Backpropagation Methode der vorherige Schicht aufgerufen werden, und dieser der Vector "dCda" übergeben werden.
 \begin{lstlisting}[language=Java]   
         if(previousLayer!= null){
             previousLayer.backPropagation(dCda);
@@ -465,10 +469,11 @@ Nach den Schleifen muss nur noch die Backpropagation Methode der vorherige Schic
     }
 \end{lstlisting} 
 
-Dieser Prozess muss zwar noch in den anderen Layern implementiert werden, aber auf diese elegante Weise kann die Backpropagation Methode umgesetzt werden werden. Wenn man das Netzwerk ausschließlich aus Fully Connected Layern aufbaut, funktionieren klassifikatorische Aufgaben schon ganz gut. Durch Einsatz von Pooling Layern und Convolutional Layern kann die Effizienz allerdings noch weiter gesteigert werden.
+Dieser Prozess muss zwar noch in den anderen Layern implementiert werden, aber auf diese elegante Weise kann die Backpropagation Methode umgesetzt werden. Wenn man das Netzwerk ausschließlich aus Fully Connected Layern aufbaut, funktionieren klassifikatorische Aufgaben schon ganz gut. Durch den Einsatz von Pooling Layern und Convolutional Layern sollte die Effizienz allerdings noch weiter gesteigert werden können.
 
+\clearpage
 \section{Pooling Layer}
-Pooling Layer werden dazu verwendet, um das sogenannte Downsampling zu betreieben. Downsampling bedeutet einfach, dass eine geringere Auswahl an Daten weitergegeben werden.
+Pooling Layer werden dazu verwendet, um das sogenannte Downsampling zu betreiben. Downsampling bedeutet einfach, dass eine geringere Auswahl an Daten weitergegeben werden.
 In einem Netzwerk benutzt man eines dieser Verfahren, um die weiteren Schichten nur mit den nötigsten Daten zu belasten. Gerade in Anbetracht der Größe der Daten, die bei den Convolutional Layern entstehen, kann das viel Zeit sparen. Aber Hauptsächlich sorgt dies auch dafür, dass das Netzwerk weniger anfällig für Veränderungen der Daten wird. Leichte Veränderungen der Daten können für gravierende Änderungen sorgen, das heißt wenn ein Bild nicht korrekt Zentriert ist, oder wenn es um ein paar Grad gedreht wird, kommt ein Netzwerk schnell durcheinander.
 Die Convolution Layer erstellen Feature Maps, in denen die Features allerdings auch die gleichen Positionen haben, wie in den Inputs. Dadurch können bei kleinen Veränderungen schon Fehler in den nächsten Schichten entstehen. Dem kann man durch das Downsampling entgegenwirken.
 
@@ -711,7 +716,7 @@ Bei der Full Cross-Correlation wird außerhalb der Matrix angefangen. Das bedeut
 \centering
 \includegraphics[scale=0.5]{./Images/Full_Correlation_004.jpg}
 \caption{Full Cross-Correlation}
-\label{Full Correlation}
+\label{Full Cross-Correlation}
 \end{figure}
  
 Die Valid Cross-Correlation hingegen beweg sich nur in den Grenzen des Eingangsbildes, daher entstehen weniger Einträge in die Feature Map.
@@ -721,7 +726,7 @@ Die Valid Cross-Correlation hingegen beweg sich nur in den Grenzen des Eingangsb
 \centering
 \includegraphics[scale=0.5]{./Images/Valid_Correlation_005.jpg}
 \caption{Valid Cross-Correlation}
-\label{Full Correlation}
+\label{Valid Cross-Correlation}
 \end{figure}
 
 Die Berechnung der Breite und Höhe einer entstehenden Feature Map sind genauso aufgebaut wie zuvor bei den Pool Layern:
@@ -880,7 +885,7 @@ Bevor es in die inneren Schleifen geht, muss die Summe initialisiert werden, die
 return featureMap;  
 \end{lstlisting}
 
-Die Feature Map wird dann zurück gegeben. Dies muss allerding nicht nur für jedes bild, sondern auch für jeden Filter gemacht werden. Dazu schreiben wir die methode "convolutionForwardPass". Diese benötigt eine Liste an input Bildern, und gibt eine Liste an Feature Maps zurück:
+Die Feature Map wird dann zurück gegeben. Dies muss allerdings nicht nur für jedes bild, sondern auch für jeden Filter gemacht werden. Dazu schreiben wir die methode "convolutionForwardPass". Diese benötigt eine Liste an input Bildern, und gibt eine Liste an Feature Maps zurück:
 
 \begin{lstlisting}[language=Java]
 public List<double[][]> convolutionForwardPass(List<double[][]> list) {
@@ -897,6 +902,232 @@ public List<double[][]> convolutionForwardPass(List<double[][]> list) {
 \end{lstlisting}
 
 Wichtig hierbei ist zu beachten, dass die Input Bilder in dem Objekt Parameter "lastInput" gespeichert werden. Diese werden für die Backpropagation benötigt.
+
+
+%\cleardoublepage
+\subsection{Backpropagation im Convolutional Layer}
+Das Konzept der Backpropagation funktioniert im Prinziep so wie zuvor bei den Fully Connected Layern. Jedoch wurde zuvor die Gewichte angepasst, hier, in den Convolutional Layern, werden stattdessen die Filter angepasst. Wie zuvor besprochen, erhofft man sich davon, dass die Filter bestimmte Features erlernen, und diese dann erkennen können.
+Ebenfalls genau wie zuvor, müssen wir heraus finden, wie viel ein jeder Eintrag im Filter zu dem entsatandenen Fehler beigetragen hat. Dazu kann eine Ableitung der Forward Pass Funktion genutzt werden. Anhand der Steigung kann dann abgelesene werden, in welche Richtung die Filter angepasst werden müssen. Dieser Prozess ist aber etwas komplizierter, als in den Fully Connected Schichten. Jeder eintrag im Filter hat nicht auf alle Felder in einem Input Bild Einfluss. Zum einen wird bei der Valid Cross Correlation nicht jeder Eintrag des Filters über alle Pixel des Bildes gezogen, sondern der Filter bleibt an den Grenzen des Bildes stehen. Noch komplizierter wird es, wenn der Filter eine Schrittgröße über größer als eins hat. Dann entstehen Lücken, über die der jeweilige Eintrag im Filter Springt. All dass muss beachtet werden. 
+
+Wir sehen uns zuerst ein Beispiel für einen Forwardpass an:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{./Images/TemporaryPlaceholders/Bildschirmfoto vom 2024-05-20 15-33-37.png}
+\caption{Beispiel für Forwardpass}
+\label{Beispiel für Forwardpass}
+\end{figure}
+
+Das Input Bild hat eine Größe von 5x5 Pixeln, der Filter hat eine Größe von 2x2, und dadurch entsteht ein Output von 2x2, wenn die Schrittgröße 2 Pixel beträgt. 
+Wenn nun der Filter auf die erste Stelle gesetzt wird, dann können wir die Rechnung für die Anpassung des ersten Eintrags in der Feature Map anlegen. Anders gesagt, diese Rechnung ist für das Ergebnis in der Feature Map verantwortlich:
+
+%TODO Der Text passt nicht zum Bild, Bild muss angepasst werden
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{./Images/TemporaryPlaceholders/Bildschirmfoto vom 2024-05-20 15-40-51.png}
+\caption{Forwardpass ausrechnen}
+\label{Forwardpass ausrechnen}
+\end{figure}
+
+Um nun auszurechnen, wie der Filter angepasst werden sollte, muss die Ableitung der Funktion errechnet werden, im Bezug auf den Eintrag im Filter. Für diese Formel schreiben wir:
+$$\frac{dC}{dF_{11}}$$
+
+Wobei $dC$ die Fehlermenge ist, die wir aus der nächsten Schicht oder von der Cost funktion erhalten, und $dF_{11}$ den Eintrag im Filter in erster Reihe und Zeile beschreibt.
+
+Zuerst nutzen wir die Kettenregel um das aufzuschlüsseln. So wie zuvor, wissen wir dass die Costfunktion von den Outputs abhängt, die das Netzwerk gibt. Und die Outputs werden direkt von den Filtern beinflusst. Also haben wir zwei Terme, die Cost FUnktion in abhängigkeit von den Outputs $\frac{dC} {dO} $ und die Outputs in Abhängigkeit zu den Filtern $ \frac{dO} {dF_{11}}$.
+$$\frac{dC}{dF_{11}} = \frac{dC} {dO} \frac{dO} {dF_{11}}$$
+
+Allerdings müssen diese weiter aufgeschlüsselt werden. Der Filter hat immerhin Einfluss auf mehrere Outputs, welche wiederum Einfluss auf mehrere Ergebnisse der Cost Funktion haben. Dazu überlegen wir uns einmal, was genau hereingereicht wird. Die Fehler, die z.B. aus einer Fully Connected Schicht hereingereicht werden, entsprechen einer langen Liste mit dem gleichen Format der Inputs, welche jene Schicht erhalten hat. Da wir wissen, auf welche weise wir die Outputs beim Forwardpass aus mehreren 2 Dimensionalen Bildern in ein einziges Array Sortieren, das heißt die Ausgabe wird geflattet, können wir diese Formatierung sozusagen auch rückgängig machen. Solange sich die nächste Schicht an die Konventionen hält, müssten wir in der Lage sein, ein Array an Errors, welches wir von der nächsten Schicht erhalten, in eine Anzahl an Arrays zu formatieren, welche den Maßen der Feature Maps entspricht.
+Wir haben dann also eine Reihe an Feature Cost Maps, welche die Abweichungen enthalten, die von den Filtern verursacht wurden. Hier ein Beispiel:
+
+%TODO Dieses Bild selbst malen, dabei beachten das dL bei mir dC heißt, und dO kann so bleiben denke ich
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.80]{./Images/TemporaryPlaceholders/Bildschirmfoto vom 2024-05-20 17-15-41.png}
+\caption{Cost inputs}
+\label{Cost inputs}
+\end{figure}
+
+Gehen wir zuerst auf die einzelnen Terme ein. $dC$ ist das Ergebnis der Cost Funktion, so wie zuvor. $dO_{ij}$ entspricht dem Output, der als Eingabe für die Cost Funktion zuständig war.
+
+Mit diesem Filter, der 4 Elemente enthält, entstehen dann also 4 Terme, welche die Formel oben weiter aufschlüsseln:
+
+$$
+\frac{dC}{dF_{11}} = 
+\frac{dC} {dO} \frac{dO} {dF_{11}}= 
+\frac{dC} {dO_{11}} \frac{dO_{11}} {dF_{11}}+
+\frac{dC} {dO_{12}} \frac{dO_{12}} {dF_{11}}+
+\frac{dC} {dO_{21}} \frac{dO_{21}} {dF_{11}}+
+\frac{dC} {dO_{22}} \frac{dO_{22}} {dF_{11}}
+$$
+
+$\frac{dO_{11}} {dF_{11}}$ wollen wir zuerat ableiten. Dazu sehen wir uns an, wie die Rechnung der Outputs zu stande kommt:
+
+$$
+O_{11} = X_{11}F_{11}+X_{12}F_{12}+X_{13}F_{13}+X_{21}F_{21}+X_{22}F_{22}+X_{23}F_{23}+X_{31}F_{31}+X_{32}F_{32}+X_{33}F_{33}
+$$
+
+Wenn wir nun nach $F_{11}$ ableiten, dann stellt sich heraus, dass nur ein einziger Wert übrig bleibt:
+
+$$\frac{dO_{11}} {dF_{11}} = X_{11}$$
+
+Genau so sieht es mit den anderen Ableitungen der Output Funktion aus, hier noch ein Beispiel:
+
+$$
+O_{12} = X_{13}F_{11}+X_{14}F_{12}+X_{15}F_{13}+X_{23}F_{21}+X_{24}F_{22}+X_{25}F_{23}+X_{33}F_{31}+X_{34}F_{32}+X_{35}F_{33}
+$$
+
+$$\frac{dO_{12}} {dF_{11}} = X_{13}$$
+
+Die Andern zwei Ableitungen sind
+
+
+$$\frac{dO_{21}} {dF_{11}} = X_{31}$$
+
+$$\frac{dO_{22}} {dF_{11}} = X_{33}$$
+
+Wir können das zur bessernen Lessbarkeit eimal in die Lange Formel von vorhin einsetzten:
+
+$$
+\frac{dC}{dF_{11}} = 
+\frac{dC} {dO_{11}} X_{11}+
+\frac{dC} {dO_{12}} X_{13}+
+\frac{dC} {dO_{21}} X_{31}+
+\frac{dC} {dO_{22}} X_{33}
+$$
+
+Und einmal mit einer Grafik:
+
+%TODO Das Bild muss noch angepasst werden, die Formel steht ja schon oben drüber, muss also weg, Reihenfolge verändern
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{./Images/TemporaryPlaceholders/Fehlerrückverfolgung auf Filtern.png}
+\caption{Fehlerrückverfolgung zu einem Filter}
+\label{Fehlerrückverfolgung zu einem Filter v1}
+\end{figure}
+
+Das die einzelnen Werte auf dem Input Bild jeweils einen Schritt auseinander liegen, liegt daran, dass die Schrittgröße in diesem Beispiel bei 2 liegt. Dadurch wird jeweils ein Pixel übersprungen. Hätten wir hier eine Schrittgröße von 1, dann lägen die Werte beieinander. Oder wenn die Schrittgröße weiter wäre, z.B. bei 3 oder mehr, dann lägen 2 oder mehr Pixel dazwischen.
+
+Die Zweite Änderungsrate die wir berechnen wolen, ist $\frac{dC}{dF_{12}}$. 
+
+
+$$
+\frac{dC}{dF_{12}} = 
+\frac{dC} {dO_{11}} X_{12}+
+\frac{dC} {dO_{12}} X_{14}+
+\frac{dC} {dO_{21}} X_{32}+
+\frac{dC} {dO_{22}} X_{34}
+$$
+
+%TODO Das Bild muss noch angepasst werden, Reihenfolge verändern
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.50]{./Images/TemporaryPlaceholders/Fehlerrückverfolgung auf Filtern_2.png}
+\caption{Fehlerrückverfolgung zu einem Filter}
+\label{Fehlerrückverfolgung zu einem Filter v2}
+\end{figure}
+
+Auch hier wird wieder der Abstand zwischen den Werten eingehalten. Dieses Muster kann für das Netzwerk genutzt werden. 
+
+Das Konzept sieht folgendermaßen aus: Wir erstellen ein Hilfs-Array, welches die Form eines Filters hat, und die Fehler, also die Werte $\frac{dC} {dO}$ so angeordnet enthält, dass sie an der Richtigen Stelle mit den Werten des input Bildes verrechnet werden, wenn wir die Convolution Methode Anwenden. Auf diese Weise stellen wir Sicher, dass für den jeweiligen Eintrag im Filter, der für die Fehler verantwortlich war, genau die Werte im Input Bild verwendet werden, mit denen er auch wirklich zu tun hatte.
+
+Diese Methode nennen wir jetzt "spaceArray". Sie erhällt unsere Fehler Matrix, und wandelt diese mithilfe der in der Schicht gespeicherten "stepSize" in eine Array um, das wir oben beschrieben haben.
+
+%TODO Es kann noch eine Entscheidung getroffen werden, ob dieser Code Tiefer erklärt werden soll
+\begin{lstlisting}[language=Java]
+    public double[][] spaceArray(double[][] input) {
+        if (stepSize == 1) {
+            return input;
+        }
+
+        int outRows = (input.length - 1) * stepSize + 1;
+        int outCols = (input[0].length - 1) * stepSize + 1;
+
+        double[][] output = new double[outRows][outCols];
+        for (int i = 0; i < input.length; i++) {
+            for (int j = 0; j < input[0].length; j++) {
+                output[i * stepSize][j * stepSize] = input[i][j];
+            }
+        }
+        return output;
+    }
+\end{lstlisting}
+
+Damit ist es aber noch nicht getan. Wenn die Convolution mit dem Hilfsarray abgeschlossen ist, erhalten wir ein Array welches die Änderungsraten enthält, die wir von den Werten im bisherigen Filter abziehen müssen.
+Aber danach müssen wir noch die Werte berechnen, die wir an die nächste Schicht im Backpropagation Verfahren geben. Genau wie zuvor bei den Fully Connected Layern, leiten wir dann nicht mehr nach den Gewichten, oder hier eben den Filtern ab, sondern nach den Werten in den Input Bildern. Dadurch entsteht wieder eine Ableitung, nämlich $\frac {dC} {dX}$, wobei $X$ die Outputs der vorherigen Schicht repräsentiert, also die Input Bilder der aktuellen Schicht.
+
+Zur Veranschaulichung für unser Beispiel, hier noch einmal die Vier Formeln zur Berechnung der Feature Map unseres Beispiels:
+$$O_{11} = X_{11}F_{11}+X_{12}F_{12}+X_{13}F_{13}+X_{21}F_{21}+X_{22}F_{22}+X_{23}F_{23}+X_{31}F_{31}+X_{32}F_{32}+X_{33}F_{33}$$
+$$O_{12} = X_{13}F_{11}+X_{14}F_{12}+X_{15}F_{13}+X_{23}F_{21}+X_{24}F_{22}+X_{25}F_{23}+X_{33}F_{31}+X_{34}F_{32}+X_{35}F_{33}$$
+$$O_{21} = X_{31}F_{11}+X_{32}F_{12}+X_{33}F_{13}+X_{41}F_{21}+X_{42}F_{22}+X_{43}F_{23}+X_{51}F_{31}+X_{52}F_{32}+X_{53}F_{33}$$
+$$O_{22} = X_{33}F_{11}+X_{34}F_{12}+X_{35}F_{13}+X_{43}F_{21}+X_{44}F_{22}+X_{45}F_{23}+X_{53}F_{31}+X_{54}F_{32}+X_{55}F_{33}$$
+
+Ziel ist es, herauszufinden, welchen Einfluss die Outputs der vorherigen Schicht auf die Cost Funktion hatte.
+Wir sehen uns ein paar Beispiele an. Wenn wir den Ersten Wert des Bildes betrachten, dann war nur der erste Wert im Filter jemals daran beteiligt, den output zu errechnen. So wird die Kettenregel angewendet:
+
+$$\frac {dC} {dX_{11}} = 
+\frac {dC}{dO_{11}} \frac {dO}{dX_{11}} =
+\frac {dC}{dO_{11}} F_{11}$$
+Um das ein wenig verständlicher darzustellen, visuallisieren wir das einmal Farblich:
+%TODO Bild einfürgen für den Oben genannten Umstand
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.8]{./Images/TemporaryPlaceholders/Farbliche Visualisierung der Fehlerrückführung über die Inputs X11.png}
+\caption{Farbliche Visualisierung der Fehlerrückführung über die Inputs X11}
+\label{Farbliche Visualisierung der Fehlerrückführung über die Inputs }
+\end{figure}
+
+$$\frac {dC} {dX_{12}} = \frac {dC}{dO_{11}} F_{12}$$
+
+$$\frac {dC} {dX_{31}} = \frac {dC}{dO_{11}} F_{31} + \frac {dC}{dO_{21}} F_{11}$$
+
+$$\frac {dC} {dX_{33}} = \frac {dC}{dO_{11}} F_{33} + \frac {dC}{dO_{31}} F_{11} + \frac {dC}{dO_{21}} F_{13} + \frac {dC}{dO_{22}} F_{11}$$
+
+
+
+\begin{lstlisting}[language=Java]
+public void backPropagation(List<double[][]> dLdO) {
+        List<double[][]> filtersDelta = new ArrayList<>();
+        List<double[][]> dLd0PreviousLayer = new ArrayList<>();;
+        for (int f = 0; f < filters.size(); f++) {
+            filtersDelta.add(new double[filterSize][filterSize]);
+        }
+
+        for (int i = 0; i < lastInput.size(); i++) {
+            double[][] errorForInput = new double[inRows][inCols];
+
+            for (int f = 0; f < filters.size(); f++) {
+                double[][] currentFilter = filters.get(f);
+                double[][] error = dLdO.get(i * filters.size() + f);
+
+                double[][] spacedError = spaceArray(error);
+                double[][] dLdF = convolve(lastInput.get(i), spacedError, 1);
+
+                double[][] delta = multiply(dLdF, learnRate * -1);
+                double[][] newTotalDelta = add(filtersDelta.get(f), delta);
+                filtersDelta.set(f, newTotalDelta);
+
+                double[][] flippedError = flipArrayHorizontal(flipArrayVertical(spacedError));
+                errorForInput = add(errorForInput, fullConvolve(currentFilter, flippedError));
+
+            }
+
+            dLd0PreviousLayer.add(errorForInput);
+        }
+        for (int f = 0; f < filters.size(); f++) {
+            double[][] modified = add(filtersDelta.get(f), filters.get(f));
+            filters.set(f, modified);
+        }
+
+        if(previousLayer != null){
+            previousLayer.backPropagation(dLd0PreviousLayer);
+        }
+
+    }
+\end{lstlisting}
 
 
 
@@ -930,8 +1161,8 @@ Die Gliederung dieser Arbeit, entspricht einer organischen Herangehensweise oder
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.27]{./Images/BA_003_tensorflow-keras-cnn-hierarchical-structure.png}
-\caption{Tiefe der Abstraktion von Merkmalen [3]}
-\label{Tiefe der Abstraktion von Merkmalen [3]}
+\caption{Tiefe der Abstraktion von Merkmalen [3] test}
+\label{Tiefe der Abstraktion von Merkmalen [3] test}
 \end{figure}
 
 
