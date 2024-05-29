@@ -1246,11 +1246,146 @@ https://github.com/AkumaKater/Bachelorarbeit
 https://git.inf.fh-dortmund.de/01/jafor003/Bachelorarbeit
 Die nächsten Kapitel behandeln den Code, der die Schichten verwaltet. 
 
+\section{Verwaltung der Schichten}
+In diesem Kapitel gehen wir einfach Technisch über den Code, der die Schichten zu einem Netzwerk verbindet.
+um die Schichten zu verwalten, verwenden wir eine Klasse, die wir "NeuralNetwork" nennen. Diese Klasse Speichert alle Schichten in einer Liste:
 
+\begin{lstlisting}[language=Java]
+public class NeuralNetwork {
 
+    List<Layer> layers;
+    double scaleFactor;
 
+    public NeuralNetwork(List<Layer> layers, double scaleFactor) {
+        this.layers = layers;
+        this.scaleFactor = scaleFactor;
+        linkLayers();
+    }
+\end{lstlisting}
+In der Konstruktor Methode wird die Liste mit den Schichten übergeben. Diese erstellen wir mit einer Builder Klasse, aber dazu später mehr. Der Scalefactor, der auch übergeben wird, wird dazu verwendet, alle Werte in den Input Bildern stark zu verkleinern. Dies hilft den Schichten, die Werte besser zu verarbeiten.
+Bei einigen Test stellte sich heraus, dass das Netzwerk ohne den Scale Factor große Schwierigkeiten hatte, die Trainingsdaten zu lernen.
 
+In der Konstruktor Methode wird außerdem die Methode "linkLayers" aufgerufen. Diese iteriert über alle Schichten und belegt in ihnen die Referenzen auf die anliegenden Schichten:
+\begin{lstlisting}[language=Java]
+    public void linkLayers(){
+        if(layers.size()<=1){
+            return;
+        }
+        for(int i=1;i<(layers.size()-1);i++){
+            layers.get(i).setNextLayer(layers.get(i+1));
+            layers.get(i).setPreviousLayer(layers.get(i-1));
+        }
+        layers.get(0).setNextLayer(layers.get(1));
+        layers.get(layers.size()-1).setPreviousLayer(layers.get(layers.size()-2));
+    }
+\end{lstlisting}
 
+\subsection{Klassifizieren}
+
+Um ein Bild dem Netzwerk zu übergeben, haben wir die Methode "guess". Diese nimmt ein Image Objekt entgegen, und übergibt dieses an die erste Schicht im Netzwerk, an die Methode "getOutput". Diese ist wie wir zuvor gesehen haben, Rekursiv aufgebaut, und reicht das Input Bild verarbeitet an die nächste Schicht weiter, bis die Letzte Schocht ein Ergebnis zurückgibt, welches durch alle Schichten hindurch zurück an diese Stelle kommt. Das Ergebnis ist ein Array, in welchem jedes Feld eine Antwortmöglichkeit des Netzwerks repräsentiert, und je höher die Zahl auf dem Feld, desto eher Klassifiziert das Netzwerk das Bild als die Antwort, die von dem Feld repräsentiert wird.
+\begin{lstlisting}[language=Java]
+public int guess(Image image){
+        List<double[][]> inList = new ArrayList<>();
+        inList.add(multiply(image.getData(), (1.0/scaleFactor)));
+        double[] out = layers.get(0).getOutput(inList);
+        int guess = getHighestIndex(out);
+        
+        return guess;
+    }
+\end{lstlisting}
+Der Größte Wert kann als die Antwort des netzwerks Repräsentiert werden, je weiter diese Zahl von den anderen Möglichkeiten entfernt ist, desto eher kann man Interpretieren, dass das Netzwerk sich sehr Sicher mit der Antwort ist. Wenn mehrere Werte sehr dicht beieinander liegen, dann kann man dies so Interpretieren, dass das Netzwerk sich nicht Sicher ist. Auch wie nah das Ergebnis an der 1 ist lässt rückschlusse darüber zu, wie überzeugt das Netzwerk davon ist, dass die Antwort richtig sein sollte.
+
+Um den Größten Wert zu ermitteln verwenden wir die Methode "getHighestIndex". Diese gibt den Index des Arrays zurück, welche den Größten Wert enthält, und repräsentiert damit die Antwort des Netzwerkes.
+\begin{lstlisting}[language=Java]
+    public static int getHighestIndex(double[] numbers) {
+        int maxNumberIndex = 0;
+
+        // Schleife durch das Array laufen und die größte Zahl finden
+        for (int i = 0; i < numbers.length; i++) {
+            if (numbers[i] > numbers[maxNumberIndex]) {
+                maxNumberIndex = i;
+            }
+        }
+        if(maxNumberIndex>9){
+            System.out.print(maxNumberIndex);
+        }
+        return maxNumberIndex;
+    }
+\end{lstlisting}
+
+\subsection{Trainieren}
+
+Die wohl Wichtigste Funktion eines Netzwerkes ist die Fähigkeit, zu lernen. Dazu benutzen wir die "train" Methode. Diese erhält eine Liste an Image Objekten, welche die Input Bilder und die Label enthalten, welche die Bilder korrekt beschreiben.
+\begin{lstlisting}[language=Java]
+public void train (List<Image> images){
+        int index = 0;
+        for(Image img : images){
+            List<double[][]> inList = new ArrayList<>();
+            inList.add(multiply(img.getData(), (1.0/scaleFactor)));
+            double[] out = layers.get(0).getOutput(inList);
+            double dCdO[] = getErrors(out, img.getLabel());
+
+            layers.get((layers.size()-1)).backPropagation(dCdO);
+
+            System.out.print("Prozent: "+index*100/images.size()+"%");
+            System.out.print('\r');
+            index++;
+        }
+        System.out.println("Prozent: 100%");
+    }
+\end{lstlisting}
+Auch hier werden die Bilder mit dem Scale Factor angepasst, und danach wird jedes Bild einzeln durch den Forward Pass der Methoden gegeben, analog zum Vorgang in der "guess" Methode. Das Array, welches dabei entsteht und die Antwort des Netzwerks enthält, wird dann an die Methode "getErrors" übergeben. Diese berechnet uns die Fehlermenge, die wir für den ersten Schritt im Backpropagation Algorithmus benutzen. Dieser wird dann auch auf der letzten Schicht im netzwerk aufgerufen.
+
+\begin{lstlisting}[language=Java]
+private double[] getErrors(double[] networkOutput, int correctAnswer){
+        int numClasses = networkOutput.length;
+        double[] expected = new double[numClasses];
+        expected[correctAnswer] = 1;
+        return add(networkOutput, multiply(expected, -1));
+    }
+\end{lstlisting}
+
+\subsection{Testen}
+
+Zu guter Letzt sollte es möglich sein, die Effizienz eines Netzwerkes zu testen. Dazu übergeben wir eine Testmenge an Bildern an die Methode "test". Diese iteriert über alle Input Bilder, verwendet die "guess" Methode um das Ergebnis des netzwerkes mit dem Label des Bildes zu vergleichen, und errechnet dann in Prozent den Anteil an richtig klassifizierten Bildern.
+
+\begin{lstlisting}[language=Java]
+    public float test (List<Image> images){
+        int correct = 0;
+        for(Image img : images){
+            int guess = guess(img);
+            if(guess == img.getLabel()){
+                correct++;
+            }
+        }
+        return ((float)correct/images.size());
+    }
+ \end{lstlisting}
+
+\subsection{NetworkBuilder}
+Der Network Builder wird dazu verwendet, um Netzwerke nach bestimmten Merkmalen zu erstellen. Es gibt einige Werte, die wir nicht manuell eingeben müssen, weil sie vollständig von den anderen Schichten im Netzwerk abhängen. Mithilfe dieser Klasse muss jeweils nur das nötigste angegeben werden, um die verschiedenen Schichten zu erstellen.
+Die Klasse enthält jeweils die Methoden "addConvolutionLayer", "addMaxPoolLayer" und "addFullyConnectedLayer" um die Schichten zu erstellen. Dabei füllt die Methode in abhängigkeit der vorherigen Schicht jeweils die nötigen Felder im Konstruktor der einzelnenn Schichten aus, die von den Ausgaben der vorherigen Schichten abhängen. Hier ein Beispiel:
+\begin{lstlisting}[language=Java]
+public void addConvolutionLayer(int numFilters, int filterSize, int stepSize, double learnRate){
+        if(layers.isEmpty()){
+            layers.add(new ConvolutionLayer(filterSize, stepSize, 1, inputRows, inputCols, numFilters, learnRate));
+        }else{
+            Layer previousLayer = layers.get(layers.size()-1);
+            layers.add(new ConvolutionLayer(filterSize, stepSize, previousLayer.getOutputLength(), previousLayer.getOutputRows(), previousLayer.getOutputCols(), numFilters, learnRate));
+        }
+    }
+\end{lstlisting}
+Die Convolution Schicht ist entweder die erste Schicht im Netzwerk, und erhält daher nur einen Input, nämlich das Bild. Wenn es aber nicht das erste ist, dann erhält es eine Reihe von zum Beispiel Feature Maps, und die genaue menge, die erwartet wird, kann von der vorherigen Schicht abgefragt werden.
+
+Wenn in der Main Methode alle Schichten festgelegt wurden, wird zuletzt die Methode "build" aufgerufen, welche die Liste an Schichten an den Konstruktor eines neuen "NeuralNetwork" Objekts übergibt, und dieses Netzwerk dann zurückgibt.
+\begin{lstlisting}[language=Java]
+public NeuralNetwork build(){
+        nn = new NeuralNetwork(layers, scaleFactor);
+        return nn;
+    }
+\end{lstlisting}
+
+Nun ist das netzwerk einsatzbereit, und kann verwendet werden, um zum Beispiel den MNIST Datensatz zu lernen.
 
 
 

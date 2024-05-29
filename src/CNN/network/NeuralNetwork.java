@@ -48,8 +48,6 @@ public class NeuralNetwork {
         double[] out = layers.get(0).getOutput(inList);
         int guess = getHighestIndex(out);
         
-        
-
         return guess;
     }
 
@@ -92,13 +90,4 @@ public class NeuralNetwork {
         }
         System.out.println("Prozent: 100%");
     }
-
-    public List<Layer> getLayers() {
-        return layers;
-    }
-
-}
-
-class GuessIsNullException extends Exception{
-
 }
