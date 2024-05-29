@@ -1075,18 +1075,107 @@ Um das ein wenig verständlicher darzustellen, visuallisieren wir das einmal Far
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.8]{./Images/TemporaryPlaceholders/Farbliche Visualisierung der Fehlerrückführung über die Inputs X11.png}
+\includegraphics[scale=0.80]{Images/TemporaryPlaceholders/Farbliche Visualisierung der Fehlerrückführung über die Inputs X11.png}
 \caption{Farbliche Visualisierung der Fehlerrückführung über die Inputs X11}
-\label{Farbliche Visualisierung der Fehlerrückführung über die Inputs }
+\label{Farbliche Visualisierung der Fehlerrückführung über die Inputs X11}
 \end{figure}
+
+Nur beim ersten Schritt, wenn der Filter ganz oben in der Linken Ecke des Bildes ist, wird der Input $X_{11}$ verwendet. Auch bei $X_{12}$ gibt es nur ein Vorkommen in den Rechnungen:
 
 $$\frac {dC} {dX_{12}} = \frac {dC}{dO_{11}} F_{12}$$
 
+%TODO Ersetze das Bild Dringend
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.80]{Images/TemporaryPlaceholders/Farbliche Visualisierung der Fehlerrückführung über die Inputs X12.png}
+\caption{Farbliche Visualisierung der Fehlerrückführung über die Inputs X12}
+\label{Farbliche Visualisierung der Fehlerrückführung über die Inputs X12}
+\end{figure}
+
+Anders sieht es allerdings z.B. bei $X_{31}$ aus. Dieser Wert wird sowohl durch den ersten Schritt verwendet, als auch durch den vierten. Das Spiegelt sich in der Ableitung wieder:
 $$\frac {dC} {dX_{31}} = \frac {dC}{dO_{11}} F_{31} + \frac {dC}{dO_{21}} F_{11}$$
+
+%TODO Ersetze das Bild Dringend
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.80]{Images/TemporaryPlaceholders/Farbliche Visualisierung der Fehlerrückführung über die Inputs X31.png}
+\caption{Farbliche Visualisierung der Fehlerrückführung über die Inputs X31}
+\label{Farbliche Visualisierung der Fehlerrückführung über die Inputs X31}
+\end{figure}
+
+Hier wird es schon sichtbar, dass die Error Map Horizontal und Vertikal verdreht verwendet wird, aber das wird noch sichtbarer, wenn wir uns $X_{33}$ ansehen. Dieser Wert kommt in allen vier Schritten vor:
 
 $$\frac {dC} {dX_{33}} = \frac {dC}{dO_{11}} F_{33} + \frac {dC}{dO_{31}} F_{11} + \frac {dC}{dO_{21}} F_{13} + \frac {dC}{dO_{22}} F_{11}$$
 
+%TODO Ersetze das Bild Dringend
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.80]{Images/TemporaryPlaceholders/Farbliche Visualisierung der Fehlerrückführung über die Inputs X31.png}
+\caption{Farbliche Visualisierung der Fehlerrückführung über die Inputs X33}
+\label{Farbliche Visualisierung der Fehlerrückführung über die Inputs X33}
+\end{figure}
 
+Wenn man diese Schritte so weiterführen würde, dann würden einem die Folgenden Dinge auffallen:
+\begin{itemize}
+  \item Die Error Map wird Vertikal und Horizontal gespiegelt verwendet
+  \item Die Error Map wird so wie zuvor auch, entsprechend der Schrittgröße auseinander gezerrt  
+  \item Bei der oben "Verwendung" genannten Operation handelt es sich um eine Full Cross Correlation
+\end{itemize}
+
+Diese Operation kann also auch relativ einfach umgesetzt werden. Wenn wir eine Full Cross-Correlation zwischen der Fehler Map und den bisherigen Filtern ausführen, dann entsteht tatsächlich ein Array, welches die Maße der Input Bilder hat. Dieses Array enthält die Fehlermengen für die nächste Schicht im Backpropagation Verfahren. 
+
+Fangen wir doch mit der Full Cross-Correlation an. Die Methode "fullConvolve" erhält die Aktuellen Filter und die umgekehrte Error Map als Input. Im Großen und ganzen können wir die Convolve Methode kopieren, allerdings müssen einige Änderungen vorgenommen werden.
+
+\begin{lstlisting}[language=Java]
+private double[][] fullConvolve(double[][] currentFilter, double[][] flippedError) {
+        int outRows = (currentFilter.length + flippedError.length) + 1;
+        int outCols = (currentFilter[0].length + flippedError[0].length) + 1;
+\end{lstlisting}
+Zuerst müssen die Outputs anders berechnet werden. bei der Full Cross-Correlation entstehen mehr berechnete Werte. 
+$$H_{out} = (H + filter\_height)-1$$
+$$W_{out} = (W + filter\_ width)-1$$
+Jedoch kommt es leider immer wieder vor, dass durch die Rundungen beim Dividieren nicht ganz die gleichen Matrizen entstehen, wie sie erwartet werden. 
+\begin{lstlisting}[language=Java]
+        int inRows = currentFilter.length;
+        int inCols = currentFilter[0].length;
+
+        int fRows = flippedError.length;
+        int fCols = flippedError[0].length;
+
+        double[][] output = new double[outRows][outCols];
+
+        int outRow = 0;
+        int outCol;
+
+        for (int i = -fRows +1; i < inRows; i++) {
+            outCol = 0;
+            for (int j = -fCols +1; j < inCols; j++) {
+
+                double sum = 0.0;
+
+                // Hier werden Die Filter Eingesetzt
+                for (int x = 0; x < fRows; x++) {
+                    for (int y = 0; y < fCols; y++) {
+                        int inputRowIndex = i + x;
+                        int inputColIndex = j + y;
+
+                        if (inputRowIndex >= 0 && inputColIndex >= 0 && inputRowIndex < inRows
+                                && inputColIndex < inCols) {
+                            double value = flippedError[x][y] * currentFilter[inputRowIndex][inputColIndex];
+                            sum += value;
+                        }
+
+                    }
+                }
+
+                output[outRow][outCol] = sum;
+                outCol++;
+            }
+            outRow++;
+        }
+        return output;
+    }
+\end{lstlisting}
 
 \begin{lstlisting}[language=Java]
 public void backPropagation(List<double[][]> dLdO) {

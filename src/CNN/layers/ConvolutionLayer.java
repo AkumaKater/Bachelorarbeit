@@ -254,8 +254,8 @@ public class ConvolutionLayer extends Layer {
     }
 
     private double[][] fullConvolve(double[][] currentFilter, double[][] flippedError) {
-        int outRows = (currentFilter.length + flippedError.length) + 1;
-        int outCols = (currentFilter[0].length + flippedError[0].length) + 1;
+        int outRows = (currentFilter.length + flippedError.length);
+        int outCols = (currentFilter[0].length + flippedError[0].length);
 
         int inRows = currentFilter.length;
         int inCols = currentFilter[0].length;
@@ -268,9 +268,9 @@ public class ConvolutionLayer extends Layer {
         int outRow = 0;
         int outCol;
 
-        for (int i = -fRows; i <= inRows; i++) {
+        for (int i = -fRows +1; i < inRows; i++) {
             outCol = 0;
-            for (int j = -fCols; j <= inCols; j++) {
+            for (int j = -fCols +1; j < inCols; j++) {
 
                 double sum = 0.0;
 
