@@ -1134,7 +1134,9 @@ private double[][] fullConvolve(double[][] currentFilter, double[][] flippedErro
 Zuerst müssen die Outputs anders berechnet werden. bei der Full Cross-Correlation entstehen mehr berechnete Werte. 
 $$H_{out} = (H + filter\_height)-1$$
 $$W_{out} = (W + filter\_ width)-1$$
-Jedoch kommt es leider immer wieder vor, dass durch die Rundungen beim Dividieren nicht ganz die gleichen Matrizen entstehen, wie sie erwartet werden. 
+Jedoch kommt es leider immer wieder vor, dass durch die Rundungen beim berechnen der Output Dimensionen nicht ganz die gleichen Matrizen entstehen, wie sie erwartet werden. Durch einige Tests konnte sichergestellt werden, dass eventuelle Überhänge keine Notwendigen Informationen enthalten. Allerdings muss man hier aufpassen, dass die "add" Methode, welche die Werte von zwei Arrays addiert, nur über das kleinere Array iteriert. Diese Stellen im Code funktionieren soweit, in Zukünftigen Anpassungen können sie aber verbessert werden. 
+
+Als nächstes werden die Dimensionen des Filters gespeichert. Über diesen Filter wird wie über das input Bild iteriert, daher benötigen wir die Abmaße. Danach nehmen wir die Dimensionen der umgekehrten und auseinander gezehrten Error Map, diese werden nicht nur für die Iteration in den inneren Schleifen benötigt, sondern diesmal auch für die Begrenzung in den Äußeren Schleifen. 
 \begin{lstlisting}[language=Java]
         int inRows = currentFilter.length;
         int inCols = currentFilter[0].length;
@@ -1143,6 +1145,10 @@ Jedoch kommt es leider immer wieder vor, dass durch die Rundungen beim Dividiere
         int fCols = flippedError[0].length;
 
         double[][] output = new double[outRows][outCols];
+        
+\end{lstlisting}
+        Da es sich hierbei um eine Full Cross-Correlation handelt, wird die erste Position, an welcher der Filter angelegt wird, außerhalb des Input Bildes sein. Das Reflektieren wir dadurch, dass die Startposition in der Schleife die negative Länge der Filters plus eins ist. Dadurch ist nur der äußerste Wert i, Filter über dem ersten Wert im Input Bild.
+\begin{lstlisting}[language=Java]
 
         int outRow = 0;
         int outCol;
@@ -1153,7 +1159,9 @@ Jedoch kommt es leider immer wieder vor, dass durch die Rundungen beim Dividiere
 
                 double sum = 0.0;
 
-                // Hier werden Die Filter Eingesetzt
+\end{lstlisting}
+Vor den inneren Schleifen, welche über alle Felder des Filters iterieren, initiieren wir die "sum", welchem die einzelnen berechnungen über allen Einträgen des Filters aufaddiert werden. Die inneren Schleifen funktionieren genau wie zuvor auch, mit dem einzigen Unterschied, dass wir einen Test einbauen müssen, der überprüft, ob ein Wert, der unter einem Filter Eintrag liegt außerhalb der Input Matrix liegt. Dadurch vermeiden wir Index out of Bound Errors.
+\begin{lstlisting}[language=Java]
                 for (int x = 0; x < fRows; x++) {
                     for (int y = 0; y < fCols; y++) {
                         int inputRowIndex = i + x;
@@ -1164,10 +1172,12 @@ Jedoch kommt es leider immer wieder vor, dass durch die Rundungen beim Dividiere
                             double value = flippedError[x][y] * currentFilter[inputRowIndex][inputColIndex];
                             sum += value;
                         }
-
                     }
                 }
-
+                
+\end{lstlisting}
+Zuletz werden die Ergebnisse in dem output Array gespeichert. Es kann vorkommen, dass dieses Größer ist, als die Abmaße der input Bilder, allerdings sollte das kein Problem sein. 
+\begin{lstlisting}[language=Java]
                 output[outRow][outCol] = sum;
                 outCol++;
             }
@@ -1177,6 +1187,9 @@ Jedoch kommt es leider immer wieder vor, dass durch die Rundungen beim Dividiere
     }
 \end{lstlisting}
 
+Kommen wir nun zum Kern, dem eigentlichen "backPropagation" Algorithmus. Wie Oben besprochen, benötigen wir eine Liste "filtersDelta" mit den Filter, welche die Änderungsraten für die Aktuellen Filter enthalten, und eine Liste mit den Ableitungen der Cost Funktion im Bezug auf die aktuellen Filter, "dLd0PreviousLayer", welche wir an die vorherige Schicht weiterleiten werden.
+Die "filtersDelta" Liste sollte so initialisiert werden, dass sie genau der Liste mit den Filtern entspricht, das heißt die gleiche Anzahl an Matrizen, und diese in gleicher Form und Größe wie die Filter.
+
 \begin{lstlisting}[language=Java]
 public void backPropagation(List<double[][]> dLdO) {
         List<double[][]> filtersDelta = new ArrayList<>();
@@ -1184,41 +1197,54 @@ public void backPropagation(List<double[][]> dLdO) {
         for (int f = 0; f < filters.size(); f++) {
             filtersDelta.add(new double[filterSize][filterSize]);
         }
-
+\end{lstlisting}
+Nun iterieren wir über alle Input Bilder, die bei dem Forwardpass zwischengespeichert wurden. Wir initialisieren eine Matrix, "errorForInput", um die Fehler für die nächste Schicht aufadieren zu können.
+\begin{lstlisting}[language=Java]
         for (int i = 0; i < lastInput.size(); i++) {
             double[][] errorForInput = new double[inRows][inCols];
-
+\end{lstlisting}
+Und dann iterieren wir für jeden Filter, den wir haben und berechnen die Werte, so wie oben beschrieben.
+Zuerst speichern wir den Aktuellen Filter zwischen, damit wir ihn nachher unverändert verwenden können. Dann holen wir uns die aktuelle Error Map, und Speichern diese auch.
+\begin{lstlisting}[language=Java]
             for (int f = 0; f < filters.size(); f++) {
                 double[][] currentFilter = filters.get(f);
                 double[][] error = dLdO.get(i * filters.size() + f);
-
+\end{lstlisting}
+Der Error muss entsprechend der Schrittgröße auseinandergezogen werden, und kann dann an die "convolve" Methode übergeben werden. Die Schrittgröße, die an die Methode übergeben wir, ist hier immer eins, da wir bereits durch das Strecken der Error Map dafür sorgen, dass die jeweilige Schrittgröße berücksichtigt wird.
+\begin{lstlisting}[language=Java]
                 double[][] spacedError = spaceArray(error);
                 double[][] dLdF = convolve(lastInput.get(i), spacedError, 1);
-
+\end{lstlisting}
+nachdem wir also die Änderungsraten berechnet haben, müssen wir sie auch abziehen. Dafür verwenden wir die Methode multiply, welche jeden Wertt eines Arrays mit einem übergebenem Skalar Multipliziert. Dadurch kehren wir die Werte um, wonach sie danach mithilfe der "add" Methode zu den bisherigen Filter Änderungsraten hinzugefügt werden.
+\begin{lstlisting}[language=Java]
                 double[][] delta = multiply(dLdF, learnRate * -1);
                 double[][] newTotalDelta = add(filtersDelta.get(f), delta);
                 filtersDelta.set(f, newTotalDelta);
-
-                double[][] flippedError = flipArrayHorizontal(flipArrayVertical(spacedError));
+\end{lstlisting}
+Zuletzt kehren wir die gezerrte Error Map auf beiden Achsen um, führen dann die Full Cross-Correlation zwischen ihr und dem aktuellen Filter aus, addieren das Ergebnis auf die bisherige "errorForInput" Matrix, die nachher weitergereicht wird. Und damit ist das Ende der inneren Schleife erreicht.
+\begin{lstlisting}[language=Java]
+                double[][] flippedError = flipArray(spacedError);
                 errorForInput = add(errorForInput, fullConvolve(currentFilter, flippedError));
-
             }
-
+\end{lstlisting}
+Die Matrix "errorForInput" wird in die Liste der Werte für die nächste Schicht eingefügt. Das war der letzte Schritt der Schleife. Zum Schluss müssen die Filter nuch noch mit den Änderungsraten in "filtersDelta" verrechnet werden, und falls es eine vorherige Schicht gibt, sollen auch die Error Maps an die nächste Backpropagation methode weitergereicht werden.
+\begin{lstlisting}[language=Java]
             dLd0PreviousLayer.add(errorForInput);
         }
         for (int f = 0; f < filters.size(); f++) {
             double[][] modified = add(filtersDelta.get(f), filters.get(f));
             filters.set(f, modified);
         }
-
         if(previousLayer != null){
             previousLayer.backPropagation(dLd0PreviousLayer);
         }
-
     }
 \end{lstlisting}
 
-
+Damit kommen wir zum Schluss dieses Kapitels. Der gesamte Code ist auf GitHub zu finden:
+https://github.com/AkumaKater/Bachelorarbeit
+https://git.inf.fh-dortmund.de/01/jafor003/Bachelorarbeit
+Die nächsten Kapitel behandeln den Code, der die Schichten verwaltet. 
 
 
 
