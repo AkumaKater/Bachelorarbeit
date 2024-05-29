@@ -1,4 +1,4 @@
-package FFNetwork;
+package FFNetwork.network;
 
 public abstract class Activation {
     public abstract double ActivationFunction(double weightedInput);

@@ -2,6 +2,8 @@ package FFNetwork;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
+import FFNetwork.data.ConfigLoader;
+import FFNetwork.network.NeuralNetwork;
 import MNISTReader.MNISTHTML;
 import MNISTReader.MnistBuffer;
 import MNISTReader.MnistMatrix;
@@ -45,7 +47,7 @@ public class Main {
         
     }
 
-    public static String getAcuracy(FFNetwork.NeuralNetwork nn, MnistMatrix[] mnistMatrix) {
+    public static String getAcuracy(FFNetwork.network.NeuralNetwork nn, MnistMatrix[] mnistMatrix) {
         int iterations = mnistMatrix.length;
         int correct = 0;
         double acuracy = 0.0;

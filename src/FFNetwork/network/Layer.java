@@ -1,4 +1,6 @@
-package FFNetwork;
+package FFNetwork.network;
+
+import FFNetwork.data.NNMath;
 
 public class Layer {
 

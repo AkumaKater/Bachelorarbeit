@@ -1,4 +1,4 @@
-package FFNetwork;
+package FFNetwork.network;
 
 import MNISTReader.MnistMatrix;
 

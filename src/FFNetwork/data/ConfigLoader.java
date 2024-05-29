@@ -1,4 +1,4 @@
-package FFNetwork;
+package FFNetwork.data;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -47,7 +47,7 @@ public class ConfigLoader {
 
     public static HashMap<String, String[]> getPropertys() {
         HashMap<String, String[]> map = new HashMap<String, String[]>();
-        try (BufferedReader bReader = new BufferedReader(new FileReader("config.json"))) {
+        try (BufferedReader bReader = new BufferedReader(new FileReader("src/FFNetwork/data/config.json"))) {
             String line = bReader.readLine();
             while (line != null) {
                 String[] string = line.split("=");

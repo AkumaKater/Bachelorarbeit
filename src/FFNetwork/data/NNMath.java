@@ -1,4 +1,4 @@
-package FFNetwork;
+package FFNetwork.data;
 import java.util.Random;
 
 public class NNMath {

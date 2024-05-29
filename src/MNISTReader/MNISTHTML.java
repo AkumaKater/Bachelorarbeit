@@ -7,9 +7,9 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-//import FFNetworkNoBiasNoBatch.*;
 
-import FFNetwork.*;
+import FFNetwork.data.ConfigLoader;
+import FFNetwork.network.NeuralNetwork;
 
 public class MNISTHTML {
     String html;
