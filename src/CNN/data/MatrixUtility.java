@@ -4,7 +4,13 @@ public class MatrixUtility {
     
 
 
-    public static double[][] add(double[][] a, double[][] b){
+    public static double[][] add(double[][] a, double[][] b) {
+        if(a.length>b.length){
+            double[][] c = b;
+            b=a;
+            a=c;
+        }
+
         double[][] out = new double[a.length][a[0].length];
 
         for(int i=0; i<a.length; i++){
