@@ -71,12 +71,24 @@
 
 \usepackage[left=4.5cm, right=1.5cm, top=3cm, bottom=2.5cm]{geometry}
 \setstretch{1.5} % Zeilenabstand von 1,5
-\setcounter{page}{-1}
+\setcounter{page}{-3}
 \begin{document}
 
 
 \maketitle
 \thispagestyle{empty}
+
+%Abstract
+\cleardoublepage
+\thispagestyle{empty}
+\section*{Abstract}
+\subsection*{Deutsch}
+
+\cleardoublepage
+\thispagestyle{empty}
+\subsection*{English Abstract}
+
+
 \cleardoublepage
 % \phantomsection
 \tableofcontents
@@ -85,19 +97,19 @@
 % \phantomsection
 
 
+\section{Einführung}
+
 
 \section{Fully Connected Layer / Feed Forward Layer}
-In diesem Kapitel werden die Fully Connected Layer betrachtet, welche genau so aufgebaut sind, wie bei den Feed Forward Networks. genau genommen wird im Prinzip einfach ein Feed Forward network am Ende des Convolutional networks eingesetzt, denn die Fully Connected layer werden nur am Ende benutzt. Wenn in einem netzwerk nur die Fully Connected Layer verwendet werden, dann handelt es sich um ein Feed Forward Network. 
+In diesem Kapitel werden die Fully Connected Layer betrachtet, welche genau so aufgebaut sind, wie bei den Feed Forward Networks. genau genommen wird im Prinzip einfach ein Feed Forward Network am Ende des Convolutional Networks eingesetzt, denn die Fully Connected layer werden nur am Ende benutzt. Wenn in einem Netzwerk nur die Fully Connected Layer verwendet werden, dann handelt es sich um ein Feed Forward Network. 
 Das Grundprinzip ist vergleichbar kompliziert. Jede Schicht enthält sogenannte Knoten. Diese Knoten sind mit den Neuronen in einem Gehirn vergleichbar.
 
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.40]{./Images/BA_001_DasNeuron.png}
 \caption{Das Neuron}
-\label{Was kommt hier rein?}
+\label{Das Neuron}
 \end{figure}
-
-FeedForwardNetzwerk
 
 Alle Knoten einer Schicht, sind mit allen Knoten der nächsten Schicht verbunden. Diese Verbindungen werden gewichtet, also müssen Gewichte gespeichert werden, die festlegen, wie wichtig der Input eines jeweiligen Knotens für den Aktuellen Knoten ist. Diese Knoten können angepasst werden, das heißt, dass kleine inkrementelle Anpassungen mit jeder Lern-Iteration vorgenommen werden, um das Netzwerk Stück für Stück einem Fehler-Minimum anzupassen. 
 
@@ -1385,7 +1397,7 @@ public NeuralNetwork build(){
     }
 \end{lstlisting}
 
-Nun ist das netzwerk einsatzbereit, und kann verwendet werden, um zum Beispiel den MNIST Datensatz zu lernen.
+Nun ist das Netzwerk einsatzbereit, und kann verwendet werden, um zum Beispiel den MNIST Datensatz zu lernen.
 
 
 
@@ -1403,43 +1415,7 @@ Nun ist das netzwerk einsatzbereit, und kann verwendet werden, um zum Beispiel d
 
 
 
-\cleardoublepage
-\section{Unterstützungs Templates}
-Die Gliederung dieser Arbeit, entspricht einer organischen Herangehensweise oder einer Anleitung, wie ein Netzwerk aufgebaut wird. Jedes Kapitel entspricht einem Teil des Netzwerkes, also den Funktionen, der Initialisierung, der Query oder Abfrage und dem Lern- oder Backpropagation-Algorithmus. Jedes der Kapitel startet mit einer Übersicht, über die Funktionalität, erläutert die Theorie dahinter, teilweise auch mathematisch, und schließt, mit dem daraus resultierenden Code ab. 
 
-
-\begin{figure}[H]
-\centering
-\includegraphics[scale=0.27]{./Images/BA_003_tensorflow-keras-cnn-hierarchical-structure.png}
-\caption{Tiefe der Abstraktion von Merkmalen [3] test}
-\label{Tiefe der Abstraktion von Merkmalen [3] test}
-\end{figure}
-
-
-\begin{itemize}
-  \item Dendriten
-  \item der Zellkörper
-  \item das Axon
-\end{itemize}
-
-\begin{lstlisting}[language=Java]
-public class NeuralNetwork {
-    Layer[] layers;
-    }
-}
-\end{lstlisting}
-
-$h$ kürzen:
-$$\frac{\Delta e}{\Delta w}=w+w+h$$
-$$\frac{\Delta e}{\Delta w}=2w+h$$Und jetzt zum Interessanten Teil. Da wir $h$ nicht gleich 0 setzten können, können wir allerdings $h$ gegen 0 laufen lassen, dann verwenden wir die Leibniz-Notation. Das bedeutet, dass wir anstatt  $\Delta w$ und  $\Delta e$, wobei $\Delta$ eine sehr kleine Vergrößerung darstellt, jetzt $dw$ und $de$ verwenden, wobei $d$ für eine unendlich kleine Vergrößerung steht, eine sogenannte Infinitesimalzahl.
-Das sieht dann ungefähr so aus:
-$$\frac{de}{dw}=\lim_{h\to 0} 2w +h$$
-$$\frac{de}{dw}=2w$$
-
-
-\section{Einleitung}
-\subsection{Motivation}
-Neuronale Netzwerke werden vor allem für Klassifikationsverfahren verwendet. In der Praxis gibt es viele Anwendungsbereiche, in denen es vorteilhaft ist, große Mengen von Daten automatisch zu klassifizieren. Einige Beispiele, wären die Bild- und Schrifterkennung, die man dazu verwendet, Kennschilder von Autos, maschinell auszulesen. Solche Technologien werden immer häufiger auf Parkplätzen und Autobahnen eingesetzt. Aber, auch fast jedes Handy kann mittlerweile Schrift erkennen, die mit der Kamera aufgenommen wird. Auch in der Medizin, beim Auswerten von Röntgenbildern, in der Biologie, zum Erkennen von Pflanzen auf Fotos und noch vielem mehr, werden Neuronale Netzwerke inzwischen eingesetzt.\\
 
 \cleardoublepage
 % \phantomsection
