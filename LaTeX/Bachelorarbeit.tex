@@ -83,11 +83,12 @@
 \thispagestyle{empty}
 \section*{Abstract}
 \subsection*{Deutsch}
+%TODO Kapitel schreiben
 
 \cleardoublepage
 \thispagestyle{empty}
 \subsection*{English Abstract}
-
+%TODO Kapitel schreiben
 
 \cleardoublepage
 % \phantomsection
@@ -98,7 +99,35 @@
 
 
 \section{Einführung}
+In dieser Abschluss Arbeit wird die Programmierung eines Convolutional Networks  behandelt. Dabei werden die Grundlegenden Konzepte behandelt, die Funktion des der einzelnen Abschnitte betrachtet und der Code in Java Stück für Stück aufgebaut. Das Ziel ist es, eine Art Anleitung zur Verfügung zu stellen, welche es einem ermöglicht, selber solch ein Netzwerk aufzubauen und einzusetzen. Natürlich gibt es weit aus bessere und effizientere Implementationen, allerdings kann es schwierig werden, die Funktionsweise zu verstehen, wenn man sich nicht selber mit den Konzepten und der Implementierung solcher Netzwerke befasst hat. Frameworks wie TensorFlow bieten ebenfalls Klassen und Funktionen an, welche diesen Konzepten folgen, sodass es nicht Notwendig ist, eigene Implementationen zu nutzen. Dazu ist diese Arbeit auch nicht da, sondern um einen Einblick in die Grundlegende Programmierung zu geben, um dann ein besseres Verständnis für die Anwendung von Convolutional Layern und Pooling Layern zu haben.
 
+Ursprünglich sollte dieses Netzwerk auf der Projektarbeit "Wie programmiert man ein einfaches Neuronales Netzwerk"[4] beruhen, allerdings wurde dann dennoch eine andere Implementation eingesetzt. Die neuen Implementation setzt darauf, dass die Schichten sowohl die Ergebnisse beim Klassifizieren, als auch beim Lernen neuer Daten Selbstständig an die nächste Schicht reichen. Die Schichten selbst erben nun von einer Oberklasse "Layer". Dadurch sind die Implementationen der tatsächlichen Schichten unabhängig der tatsächlichen Ausprägung, und können beliebig in ein Netzwerk eingefügt werden. Die Grundgedanken aus der Projektarbeit sind allerdings auch in dieser Arbeit aktuell.
+
+Mithilfe der Kettenregel wird eine vollständige Modularität der Schichten ermöglicht. Zwischenergebnisse können wiederverwendet werden, und somit wird die Funktion ermöglicht, dass beliebig viele Schichten, in vollkommen beliebiger Reihenfolge eingesetzt werden. 
+
+\subsection{Aufbau der Arbeit}
+Der Aufbau der Arbeit gestaltet sich so, dass zunächst einmal die drei Schichten, die in einem Convolutional Network vorkommen können jeweils in einem Kapitel erklärt werden. Jede Kapitel fängt also damit an, die Schicht und ihre Funktion zu erklären. Danach gehen wir auf die Grundlegenden Konzepte ein. Diese Konzepte sind in den Fully Connected Schichten und in den Convolution Schichten von mathematischer Natur. Wie zuvor erklärt, wird die Kettenregel verwendet, um die Modularität der Schichten sicher zu stellen. Es ist möglich, die einzelnen Komponenten, die eine Jede Schicht berechnen muss, auch einzeln abzuleiten. Dadurch kann eine Schicht, ohne zu wissen, welche Schicht als nächstes von den Werten Gebrauch machen wird, Werte berechnen, die an andere Schichten weitergereicht werden. Diese Werte zwischen den Schichten nenne wir häufig Fehler oder Errors, die weitergereicht werden, jedoch handelt es sich jeweils um die Ableitung der Fehlerfunktion am Ende eines Netzwerkes, im bezug auf Änderungen aufgrund der jeweiligen Outputs einer Schicht.
+
+Nachdem die erklärt wird, schließt jedes Kapitel mit dem Code der diese Rechnungen umsetzt, und Code, der die Jeweilge Schicht verwaltet. Im Prinzip wird der gesamte Aufbau einer jeden Klasse erklärt, allerdings konzentrieren sich die Kapitel auf die Funktionen, welche für die Grundlegenden Aufgaben des Netzwerkes sicherstellen. Es kann weitere Funktionen geben, die nebensächliche Aufgaben erledigen. Der Leser sei dazu eingeladen, sich den gesamten Code auf GitHub(https://github.com/AkumaKater/Bachelorarbeit/) oder GitLab(https://git.inf.fh-dortmund.de/01/jafor003/Bachelorarbeit) anzusehen. Das Programm liegt auch auf den USB Sticks bei, die mit der Arbeit eingereicht wurden.
+
+Die Arbeit wird mit einem Kapitel über die Verwaltung der Schichten, und einem Fazit enden, in welchem Verbesserungsmöglichkeiten für das Netzwerk vorgestellt werden, und ein wenig auf den Prozess der Entwicklung des Netzwerk eingegangen wird.
+
+\subsection{Convolutional Networks und ihre Anwendungsbereiche}
+Convolutional Networks erhalten ihren Namen von der Convolution Operation, welche einen kleine Matrix, die Filter genannt wird, über eine größere Matrix, die zum Beispiel das Input Bild darstellt, gleiten lässt, und dabei sich überschneidende Felder Multipliziert, Ergebnisse daraus aufsummiert, und in eine Feature Map schreibt. Ziel ist es, mit dieser Operation der 2 Dimensionalität eines Bildes Beachtung zu schenken. In einem reinem Feed Forward Neural Network werden die Input Bilder wie eine einzige Kette an Pixeln verarbeitet. Das bedeutet aber, dass nur die Pixel Rechts und Links von einem Pixel im zusammenhang mit diesem betrachtet werden. Zwar kommt es dann durch die Gewichte und den einsatz von versteckten Schichten dazu, dass Bereiche als zusammenhängend aufgefasst werden, aber diesen Prozess möchte man etwas verstärken, indem man Convolution einsetzt. Durch die Anwendung des Filters werden immerhin 2 Dimensionele bereiche verarbeitet. Die Filter sind anpassbar, und werden im Learn Prozess darauf Trainiert, bestimmte Formen zu erkennen. Dise Formen und muster nennen wir Features, und diese werden in einme Convolutional Network dann von Fully Connected Schichten verarbeitet, den selben Schichten, die im Feed Forward Network eingesetzt werden. 
+
+Da sich die Convolution Operation auf das erkennen von Featurn in einem 2 Dimensionalen bereich spezialisiert, ist damit auch der Anwendungsbereich gefunden: Convolutional Networks werden in der Bilderkennung verwendet.
+Zum Beispiel basiert die YOLO Architectur auf einem riesigen Convolutional Network. Die YOLO Architectur, oder auch "You only look once", ist ein Object detection Model, welches in der Lage ist, in 45 bis 155 Bildern pro Sekunde mehrere tausend verschiedene Objecte zu identifizieren und zu lokalisieren. Dazu werden 24 convolutional Layer verwendet, und 2 fully connected Layer. [5]
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.38]{Images/BA_007_YOLO.png}
+\caption{The YOLO Architecture[5]}
+\label{The YOLO Architecture[5]}
+\end{figure}
+
+Diese Größe wird in diesem Projakt natürlich nicht erreicht, das Training würde viel zu lange dauern. Aber dieses beispiel zeigt, wie Leistungsfähig Convolutional Networks im Bereich der Computer Vision sein können. 
+
+Fangen wir nun mit dem ersten Kapitel an, in welchem wir uns die Fully Connected Layer ansehen werden.
 
 \section{Fully Connected Layer / Feed Forward Layer}
 In diesem Kapitel werden die Fully Connected Layer betrachtet, welche genau so aufgebaut sind, wie bei den Feed Forward Networks. genau genommen wird im Prinzip einfach ein Feed Forward Network am Ende des Convolutional Networks eingesetzt, denn die Fully Connected layer werden nur am Ende benutzt. Wenn in einem Netzwerk nur die Fully Connected Layer verwendet werden, dann handelt es sich um ein Feed Forward Network. 
@@ -1400,9 +1429,19 @@ public NeuralNetwork build(){
 Nun ist das Netzwerk einsatzbereit, und kann verwendet werden, um zum Beispiel den MNIST Datensatz zu lernen.
 
 
+\cleardoublepage
+\section{Abschluss}
+Kommen wir nun zum Abschluss der Bachelor Arbeit. in diesem Kapitel wird das Netzwerk zunächst einmal getestet. Ein paar Unterschiedliche Konfigurationen werden zusammengestellt, und die Ergebnisse ein wenig Bewertet, und zusammengefasst. Danach Wird ein kleiner Ausblick darauf gegeben, wie das Netzwerk noch weiter verbessert werden kann, und zum Schluss gibt es ein Fazit, in welchem auf den Prozess der Entwicklung des Netzwerkes eingegangen wird.
+
+\subsection{Test verschiedener Konfigurationen}
+%TODO Kapitel schreiben
 
 
+\subsection{Mögliche Verbesserungen des Codes}
+%TODO Kapitel schreiben
 
+\subsection{Fazit über den Entwicklungsprozess}
+%TODO Kapitel schreiben
 
 
 
@@ -1425,12 +1464,11 @@ Nun ist das Netzwerk einsatzbereit, und kann verwendet werden, um zum Beispiel d
 \item 1. B. Lenze, Einführung in die Mathematik neuronaler Netze. Berlin: Logos Verlag; 2009.
 \item 2. Alexey Kravets (02.03.2024), "Forward and Backward propagation of Max Pooling Layer in Convolutional Neural Networks", URL: https://towardsdatascience.com/forward-and-backward-propagation-of-pooling-layers-in-convolutional-neural-networks-11e36d169bec
 \item 3. Bill Kromydas (08.03.2024), "Understanding Convolutional Neural Network (CNN): A Complete Guide", URL: https://learnopencv.com/understanding-convolutional-neural-networks-cnn/
+\item 4. Jan Philipp Fortowski (11.2023.2023), "Wie programmiert man ein einfaches Neuronales Netzwerk", befindet sich im Quellen Ordner
+\item 5. Joseph Redmon, Santosh Divvala, Ross Girshick, Ali Farhadi (09.05.2016), "You Only Look Once:
+Unified, Real-Time Object Detection", befindet sich im Quellen Ordner, URL: http://pjreddie.com/yolo/
 
 
-
-\item 4. "Ableitung der Sigmoid-Funktion" URL: \url{https://ichi.pro/de/ableitung-der-sigmoid-funktion-91708302791054}
-\item 5. "What is the role of the bias in neural networks?" URL: \url{https://stackoverflow.com/questions/2480650/what-is-the-role-of-the-bias-in-neural-networks}.
-\item 6. "How do I choose the optimal batch size?", URL: \url{https://ai.stackexchange.com/questions/8560/how-do-i-choose-the-optimal-batch-size}
 \end{itemize}
 
 \cleardoublepage
