@@ -7,6 +7,7 @@
 \usepackage{amsmath}
 \usepackage{fancyhdr}
 \usepackage{setspace} % Paket für Zeilenabstand
+\usepackage{pdfpages}
 
 \pagestyle{fancy}
 \fancyhf{}
@@ -71,27 +72,40 @@
 
 \usepackage[left=4.5cm, right=1.5cm, top=3cm, bottom=2.5cm]{geometry}
 \setstretch{1.5} % Zeilenabstand von 1,5
-\setcounter{page}{-3}
+\setcounter{page}{-4}
+
+
+
 \begin{document}
 
 
-\maketitle
+\input{Deckblatt.tex}
 \thispagestyle{empty}
 
 %Abstract
 \cleardoublepage
 \thispagestyle{empty}
-\section*{Abstract}
-\subsection*{Deutsch}
-%TODO Kapitel schreiben
+\section*{Kurzzusammenfassung}
+\textbf{Aufbau von Convolutional Neural Networks und
+ihre möglichen Anwendungsfälle}\\
+
+In diese Bachelorarbeit werden Convolutional Networks grundlegend betrachtet. Die drei Schichten, die dabei verwendet werden, werden erklärt, die Konzepte werden beleuchtet, und der Code, der daraus resultiert wird gezeigt und erklärt. Die Schichten sind die Convolution Schicht, welche durch Cross-Corelation Formen innerhalb eines Bildes erkennt, eine Pool Schicht, welche die Ergebnisse der Convolution Schicht verdichtet, und die Fully Connected Schicht, welche dafür sorgt, dass das Netzwerk Antworten liefert. Das Netzwerk wird am ende dieser Arbeit voll Funktionsfähig sein. Zum Schluss wird das Netzwerk getestet, und die Ergebnisse bewertet. Ziel dieser Arbeit ist es, eine Anleitung zu schreiben, durch die Convolutional Networks verständlicher werden, und ihre Einsatzgebiete und Stärken klar werden.
 
 \cleardoublepage
 \thispagestyle{empty}
-\subsection*{English Abstract}
-%TODO Kapitel schreiben
+\subsection*{Abstract}
+\textbf{Building convolutional neural networks and their
+possible use cases}\\
+
+In this bachelor's thesis we will take a look at convolutional networks.
+The network consist of three different kinds of layers, which will be discussed within the chapters of this paper, by looking at the concepts, the calculations and the resulting code. 
+The layers are firstly the titular convolution layer, which uses the cross correlation to locate features. The pooling layer, which condenses the information from the convolution layer. And lastly the fully connected layer, the layer responsible for providing an actual classification.
+By the end of this thesis, the network will be fully functional.
+We will then test the network and discuss the results.
+The goal of this paper is to provide a manual, through which the concepts of the convolutional network will be easier to grasp and to understand the strenghts and weaknesses of such an network. We will be able to better identify, where the network can be used.
 
 \cleardoublepage
-% \phantomsection
+\thispagestyle{empty}
 \tableofcontents
 \thispagestyle{empty}
 \cleardoublepage
@@ -129,6 +143,7 @@ Diese Größe wird in diesem Projekt natürlich nicht erreicht, das Training wü
 
 Fangen wir nun mit dem ersten Kapitel an, in welchem wir uns die Fully Connected Layer ansehen werden.
 
+\cleardoublepage
 \section{Fully Connected Layer / Feed Forward Layer}
 In diesem Kapitel werden die Fully Connected Layer betrachtet, welche genau so aufgebaut sind, wie bei den Feed Forward Networks. Genau genommen wird im Prinzip ein Feed Forward Network am Ende des Convolutional Networks eingesetzt, denn die Fully Connected Layer werden nur am Ende benutzt. Wenn in einem Netzwerk nur die Fully Connected Layer verwendet werden, handelt es sich um ein Feed Forward Network. 
 Das Grundprinzip ist vergleichbar kompliziert. Jede Schicht enthält sogenannte Knoten. Diese Knoten sind mit den Neuronen in einem Gehirn vergleichbar.
@@ -512,7 +527,7 @@ Nach den Schleifen muss nur noch die Backpropagation Methode der vorherige Schic
 
 Dieser Prozess muss zwar noch in den anderen Layern implementiert werden, aber auf diese elegante Weise kann die Backpropagation Methode umgesetzt werden. Wenn man das Netzwerk ausschließlich aus Fully Connected Layern aufbaut, funktionieren klassifikatorische Aufgaben schon ganz gut. Durch den Einsatz von Pooling Layern und Convolutional Layern sollte die Effizienz allerdings noch weiter gesteigert werden können.
 
-\clearpage
+\cleardoublepage
 \section{Pooling Layer}
 Pooling Layer werden dazu verwendet, um das sogenannte Downsampling zu betreiben. Downsampling bedeutet einfach, dass eine geringere Auswahl an Daten weitergegeben werden.
 In einem Netzwerk benutzt man eines dieser Verfahren, um die weiteren Schichten nur mit den nötigsten Daten zu belasten. Gerade in Anbetracht der Größe der Daten, die bei den Convolutional Layern entstehen, kann das viel Zeit sparen. Hauptsächlich sorgt dies auch dafür, dass das Netzwerk weniger anfällig für Veränderungen der Daten wird. Leichte Veränderungen der Daten können für gravierende Änderungen sorgen, das heißt wenn ein Bild nicht korrekt zentriert ist, oder wenn es um ein paar Grad gedreht wird, kommt ein Netzwerk schnell durcheinander.
@@ -1289,6 +1304,7 @@ https://github.com/AkumaKater/Bachelorarbeit
 https://git.inf.fh-dortmund.de/01/jafor003/Bachelorarbeit
 Die nächsten Kapitel behandeln den Code, der die Schichten verwaltet. 
 
+\cleardoublepage
 \section{Verwaltung der Schichten}
 In diesem Kapitel gehen wir technisch über den Code, der die Schichten zu einem Netzwerk verbindet.
 Um die Schichten zu verwalten, verwenden wir eine Klasse, die wir "NeuralNetwork" nennen. Diese Klasse speichert alle Schichten in einer Liste:
@@ -1440,9 +1456,7 @@ Nun ist das Netzwerk einsatzbereit, und kann verwendet werden, um zum Beispiel d
 
 
 \cleardoublepage
-\section{Abschluss}
-Kommen wir nun zum Abschluss dieser Bachelorarbeit. In diesem Kapitel wird das Netzwerk zunächst einmal getestet. Ein paar unterschiedliche Konfigurationen werden zusammengestellt, und die Ergebnisse ein wenig bewertet, und zusammengefasst. Danach wird ein kleiner Ausblick darauf gegeben, wie das Netzwerk noch weiter verbessert werden kann, und zum Schluss gibt es ein Fazit, in welchem auf den Prozess der Entwicklung des Netzwerkes eingegangen wird.
-
+\section{Evaluation}
 \subsection{Test verschiedener Konfigurationen}
 In diesem Kapitel werden einige Konfigurationen getestet. Wir Trainieren das Netzwerk mit dem MNIST Datensatz. Dies ist ein Datensatz, der 60.000 Trainingsbilder enthält, und 10.000 Testbilder. Die Bilder enthalten handgeschriebene Zahlen, auf einer Bildgröße von 28x28 Pixeln. Es kommen die Zahlen 0-9 vor, daher braucht das Netzwerk 10 Outputs, um die 10 Antwortmöglichkeiten zu reflektieren. Alle Konfigurationen werden über 3 Epochen getestet, wobei eine Epoche einen Trainingsdurchlauf über alle Trainigsdaten beschreibt.
 
@@ -1455,7 +1469,7 @@ Hierbei wurden nach der ersten Epoche schon über 70\% erreicht, teilweise sogar
 
 Für die nächste Testreihe wollen testen, wie effektiv das Netzwerk bleibt, wenn wir die Fully connected Schichten entfernen. Dadurch, dass die Convolution Schichten zusammenhängende Features erkennen, und die Fully Connected Schichten dann nur noch die Features einordnen müssen, könnte es sein, dass wir gute Ergebnisse mit weniger Neuronen erlangen. Denn die Daten, die von den Fully Connected Schichten verarbeitet werden müssen, sind viel weniger geworden, da sie nicht mehr alle Pixel verarbeiten müssen.
 Die erste Testreihe, mit einer Fully Connected Schicht von 250 knoten und einer von 10 Knoten erzeugt sehr gute Ergebnisse: 85\% auf den besten Testreihen, und über 80\% im Durchschnitt.
-und wenn man alle bis auf die outputschicht weg lässt, dann erhält man immer noch durchschnittlich 75\% Genauigkeit.
+und wenn man alle bis auf die Outputschicht weg lässt, dann erhält man immer noch durchschnittlich 75\% Genauigkeit.
 
 Als nächstes wollen wir sehen, welchen Einfluss größere Filter haben. Wir erstellen eine Convolution Schicht, mit 8 Filtern, jeweils 7x7 Pixel groß, Schrittgröße 2 und einer Max Pool Schicht und einer Outputschicht, 10 Knoten.
 Die Genauigkeit belief sich zwischen allen Tests auf 85\% bis 88\%. 
@@ -1466,19 +1480,26 @@ Hierbei erreichen die Testfälle nur bis zu 50\%.
 Versuchen wir nun die Anzahl an Filtern zu erhöhen. Dies erhöht auch den Rechenaufwand, aber die Ergebnisse dürften besser werden. Aus den vorherigen Testreihen haben wir gesehen, dass die Filtergröße 7 gute Ergebnisse erzielt hat, also setzten wir diese wieder ein.
 Wir verwenden eine Convolution Schicht mit 16 Filtern je 7x7 Pixel. Schrittgröße 2, wieder eine Max Pool Schicht und eine Fully Connected Outputschicht. Die Testreihen ergaben durchschnittlich 88\% Genauigkeit. Eine weitere Testreihe mit 64 Filtern ergab knapp über 90\%.
 
-
-
 Zuletzt wollen wir Testen, ob sich das Netzwerk durch den Einsatz mehrerer Convolution Schichten verbessern lässt. Theoretisch sind die Filter dazu da, um Muster zu erkennen. Diese Muster können auch innerhalb von Feature Maps entstehen. Um ein Stark vereinfachtes Beispiel zu nennen, betrachten wir eine Acht. Diese besteht aus zwei Ringen, die übereinander liegen. Wenn die erste Schicht nun die Ringe erkennt, dann könnte die Zweite Schicht die Ringe als Features in der Feature Map erkennen, und dann wiederum erkennen, dass diese übereinander liegen. In der YOLO Architectur werden bis zu 24 Convolution Schichten hintereinander verwendet[5]. Dazu testen wir eine Konfiguration mit zwei Convolution Schichten. Die erste hat 16 Filter, die Zweite hat 32 Filter. Diese Zahlen sind nicht zufällig gewählt. Die Abstraktionstiefe steigt mit jeder Schicht. In der ersten Schicht werden vielleicht nur Horizontale und Vertikale Kanten erkannt, dazu schräge Kannten, vielleicht auch schon leichte Kurven, oder Ecken. In der zweiten Schicht werden diese Features schon zu Komplexeren Formen verbunden, wie zum Beispiel Kreise, längere Striche und so weiter.
 Daher benutzen wir weniger Filter in der ersten Schicht, und erhöhen die Anzahl dann pro Schicht.
-%TODO
-\subsection{Mögliche Verbesserungen des Codes}
-Um das Netzwerk weiter zu verbessern, wäre der erste Schritt Batches umzusetzten. In der Projektarbeit wurden diese auch eingesetzt, allerdings würde es hier den Rahmen sprengen. Mit Batches ist gemeint, dass die Bilder nicht einzeln, sondern in "batches" also Gruppen von festgelegter Größe an das Netzwerk übergeben werden. Anstatt dass die Bilder dann direkt Einfluss auf die gewichte und die Filter haben, würden die Änderungsraten zwischengespeichert werden, und erst dann, nachdem alle Bilder in dem Batch verarbeitet wurden, werden die Änderungsraten auf einen Schlag angewandt. Dies hat zwei große Vorteile: der erste ist Geschwindigkeit. Da nicht mehr nach jedem Bild alle Filter und Gewichte angepasst werden, spart sich der Rechner ein wenig Zeit. Die Zwischenergebnisse werden ohnehin zwischengespeichert, nur der Scope müsste angepasst werden. Damit gemeint ist, dass anstatt die Zwischenergebnisse nach einer Schleife über alle Gewichte neu zu initialisiert, werden eher weitere Änderungsraten von weiteren Bilder hinzugefügt, bis der Batch durchgenommen wurde. Danach erst werden die akkumulierten Änderungsraten von den Gewichten und Filtern abgezogen.
 
-Der Zweite Vorteil ist tatsächlich auch Performance. dadurch, das immer nur ein Bild auf die Gewichte oder Filter einwirkt, wird das Netzwerk mit jeder Iteration ein wenig zu Stark zum Fehlerminimum für nur ein einziges Bild verändert. Dadurch, dass wir mithilfe der Batches mehrere Zahlen auf einem unveränderten Netzwerk Trainieren, finden wir nachher mithilfe der akkumulierten Änderungsraten einen besseren Kompromiss, in welche Richtung die Gewichte angepasst zu werden, um ein besseres Ergebnis für alle Bilder zu erzielen. 
+Wir verwenden 2 Schichten, je 8 und 16 Filter, von 7x7 Pixel Größe. Schrittgröße in beiden sei 2. Nach 3 Epochen erreicht das Netzwerk 85\% Genauigkeit. Dieses Ergebnis entspricht nicht unbedingt den Erwartungen. 
+%TODO Abschluss Netzwerke präsentieren
 
-Wenn die Batches eingerichtet wurden, dann müsste es auch möglich sein, eine Parallelisierung des Codes einzurichten. Grundlegend, werden alle Bilder in einem Batch mit dem gleichen Netzwerk klassifiziert. Das beduetet, dass die Ausgangssituation für alle Bilder in einem Batch gleich ist. Diese können also Parallelisiert werden. Alle Bilder können Parallel berechnet werden, und die Änderungsraten können dnach zusammengefasst werden und von den Gewichten und Filtern abgezogen werden. Dadurch dass mehrere Prozessoren dann nebeneinander laufen, könnten wir das Netzwerk deutlich beschleunigen. Rein Theoretisch, kann ein Netzwerk mit einer Batch Größe von 64 ebenso viele Bilder in der Zeit berechnen, die ein anderes Netzwerk ohne Batches und Parallelisierung für nur ein Bild braucht. Dazu müsste man aber Grafikarten benutzen, denn diese sind für so eine Art von Aufgabe gut geeignet. 
+\subsection{Bewertung des Netzwerkes}
+Die Ergebnisse fallen leider hinter den Ergebnissen aus der Projektarbeit zurück. Es fällt aber auf, dass auch beim reinen Einsatz von Fully Connected Schichten nicht die Genauigkeit des Netzwerkes aus der Projektarbeit erreicht wird. Dies kann viele Gründe haben, aber die Wahrscheinlichsten sind diese drei:
+\begin{itemize}
+\item 1. In den Testreihen wurden keine unterschiedlichen Learnrates getestet.
+\item 2. Es wurden keine Batches implementiert.
+\item 3. Es kann Fehler im Code geben
+\end{itemize}
+Unterschiedliche Learnrates wurden im Rahmen dieser Bachelorarbeit nicht mehr getestet, da die Netzwerke zuweilen sehr lange Rechenzeiten haben. Die größeren Netzwerke haben für alle 3 Epochen bis zu 3 Tagen gebraucht. Daher wäre der (Zeit-)Aufwand zu groß geworden. 
 
-Zum Abschluss sei gesagt, dass dieses Projekt nicht der Effizienz dient. Das hier Programmierte Netzwerk dient Lehrzwecken, wird aber niemals mit den viel weiter Entwickelten Netzwerken mithalten können. Hardware nahe Programmiersprachen könnten viel bessere Ergebnisse erzielen, als es Java könnte. Hardwarebeschleuniger werden heutzutage auch häufig eingesetzt, und um diese optimal zu nutzen, müsste das Programm auch darauf ausgelegt werden.
+Durch den Einsatz von Batches wurden im Fully Connected Network aus der Projektarbeit große Verbesserungen erzielt. Diese wären auch hier erwartbar gewesen. Dazu mehr im Kapitel zum Ausblick.
+
+Zuletzt kann es Fehler im Code geben. Bei einigen Konfigurationen wurden Errors geworfen, die das Programm zum Absturz gebracht haben. Diese Fehler können immer noch auftreten. Darauf wird das nächste Kapitel eingehen.
+
+Außerdem fällt auf, das entgegen der Erwartungen, große Filter bessere Ergebnisse erzielt haben. In verschiedenen Online Foren wurde in Kommentaren erwähnt, dass mit TensorFlow, dem Neuronalen Netzwerk Framework von Google, kleinere Filter von der Größe 3x3 bessere Ergebnisse erzielen. Dies kann unter anderem an dem Datensatz liegen, der hier verwendet wird. Der MNIST Datensatz enthält keine kleinen Details. Die Feutures, wie zum Beispiel Kurven, Kreise und Striche sind einfache Formen, von geringer Komplexität. Daher entstehen vergleichsweise wenige Fehler beim Einsatz von Größeren Filter. Es ist sogar Vorstellbar, dass diese die Erkennung begünstigen, da ein vollständiges Feature bereits ohne hohe Abstraktionstiefe erkennbar ist. Das Fell eines Tieres zum Beispiel besteht aus viel kleineren Details, als es der Hals einer 9.
 
 \subsection{Bemerkungen zum Entwicklungsprozess}
 Während der Entwicklung des Netzwerkes ist ganz besonders eine Sache aufgefallen. Durch die Größe der Filter und Wahl der Schrittgröße, kann es vorkommen, dass eine oder mehrere Zeilen und Spalten am Ende eines Inputbildes unberücksichtigt bleiben. Für die Bildklassifikation ist das normalerweise nicht von Bedeutung, allerdings kommt es dadurch bei der Backpropagation dazu, dass wenn zwei Matrizen, nämlich die Filter Matrix mit der Filter-Änderungsraten Matrix aufaddiert werden sollen, eine größer ist als die andere.
@@ -1494,14 +1515,36 @@ Und somit kann es dann zu dem Fehler kommen, dass die Filter-Änderungsraten Mat
 Ein Ähnliche Fall kann durch die  "fullConvolve" Methode entstehen. Auch hier muss das nicht repariert werden. Die entstehende Matrix kann ohne weiteres großer sein, als die Fehlermatrix, für die vorherige Schicht, es kommt nur darauf an, dass die Fehler an die Richtige Stelle kommen, und dies ist dadurch sicher gestellt, dass bei beiden die Iteration auf dem jeweils ersten Feld beginnt, und nur über die kleinere Map als Grenzen für die Schleifen iteriert wird.
 
 
+\section{Abschluss}
+Kommen wir nun zum Abschluss dieser Bachelorarbeit. In diesem Kapitel betrachten wir die Möglichkeiten, das Netzwerk noch weiter zu verbessern, und blicken einmal zurück auf die Bachelorarbeit in einem Fazit.
 
+\subsection{Ausblick}
+Um das Netzwerk weiter zu verbessern, wäre der erste Schritt Batches umzusetzen. In der Projektarbeit wurden diese auch eingesetzt, allerdings würde es hier den Rahmen sprengen. Mit Batches ist gemeint, dass die Bilder nicht einzeln, sondern in "Batches" also Gruppen von festgelegter Größe an das Netzwerk übergeben werden. Anstatt dass die Bilder dann direkt Einfluss auf die gewichte und die Filter haben, würden die Änderungsraten zwischengespeichert werden, und erst dann, nachdem alle Bilder in dem Batch verarbeitet wurden, werden die Änderungsraten auf einen Schlag angewandt. Dies hat zwei große Vorteile: der erste ist Geschwindigkeit. Da nicht mehr nach jedem Bild alle Filter und Gewichte angepasst werden, spart sich der Rechner ein wenig Zeit. Die Zwischenergebnisse werden ohnehin zwischengespeichert, nur der Scope müsste angepasst werden. Damit gemeint ist, dass anstatt die Zwischenergebnisse nach einer Schleife über alle Gewichte neu zu initialisiert, werden eher weitere Änderungsraten von weiteren Bilder hinzugefügt, bis der Batch durchgenommen wurde. Danach erst werden die akkumulierten Änderungsraten von den Gewichten und Filtern abgezogen.
 
+Der Zweite Vorteil ist tatsächlich auch Performance. dadurch, das immer nur ein Bild auf die Gewichte oder Filter einwirkt, wird das Netzwerk mit jeder Iteration ein wenig zu Stark zum Fehlerminimum für nur ein einziges Bild verändert. Dadurch, dass wir mithilfe der Batches mehrere Zahlen auf einem unveränderten Netzwerk Trainieren, finden wir nachher mithilfe der akkumulierten Änderungsraten einen besseren Kompromiss, in welche Richtung die Gewichte angepasst zu werden, um ein besseres Ergebnis für alle Bilder zu erzielen. 
 
+Wenn die Batches eingerichtet wurden, dann müsste es auch möglich sein, eine Parallelisierung des Codes einzurichten. Grundlegend, werden alle Bilder in einem Batch mit dem gleichen Netzwerk klassifiziert. Das bedeutet, dass die Ausgangssituation für alle Bilder in einem Batch gleich ist. Diese können also Parallelisiert werden. Alle Bilder können parallel berechnet werden, und die Änderungsraten können danach zusammengefasst werden und von den Gewichten und Filtern abgezogen werden. Dadurch dass mehrere Prozessoren dann nebeneinander laufen, könnten wir das Netzwerk deutlich beschleunigen. Rein Theoretisch, kann ein Netzwerk mit einer Batch Größe von 64 ebenso viele Bilder in der Zeit berechnen, die ein anderes Netzwerk ohne Batches und Parallelisierung für nur ein Bild braucht. Dazu müsste man aber Grafikarten benutzen, denn diese sind für so eine Art von Aufgabe gut geeignet. 
 
+Dieses Projekt zielt aber nicht nicht auf Effizienz. Das hier Programmierte Netzwerk dient Lehrzwecken, wird aber nicht mit den viel weiter Entwickelten Netzwerken mithalten können. Hardware nahe Programmiersprachen könnten viel bessere Ergebnisse erzielen, als es Java könnte. Hardwarebeschleuniger werden heutzutage auch häufig eingesetzt, und um diese optimal zu nutzen, müsste das Programm auch darauf ausgelegt werden.
 
+\subsection{Fazit}
+In dieser Bachelorarbeit wurde gezeigt, dass es möglich ist, ein Convolutional Network selbständig zu programmieren. Wir haben uns die Konzepte angesehen, die den einzelnen Schichten zugrunde liegen. Dabei wurde die Modularität der Schichten besonders betrachtet. Das entstandene Netzwerk ist in der Lage, mehrdimensionale Bilder zu verarbeiten. Damit gemeint sind Bilder, die nicht nur in Greyscale vorliegen, so wie der MNIST Datensatz, sondern auch Bilder, welche in 3 Farben Kanälen vorliegen: Rot, Grün und Blau. Das Netzwerk hat ein paar Schwächen, aber es demonstriert, wie Convolutional Netzwerke die früheren Feed Forward Netzwerken verbessern.
 
+In den verschiedenen Kapiteln wurde zuerst dargestellt, wie die Feed Forward Schichten funktionieren. Wir haben gesehen auf welche weise diese Schicht Daten verarbeitet, und wie die gewichte angepasst werden. Außerdem haben wir gesehen, wie die Werte bereitgestellt werden, die von einer Beliebigen Schicht benötigt werden, um wiederum die eigenen Fehler zu korrigieren. Das Konzept der Backpropagation durch das Gradient Descent Verfahren wurde bereits in der zuvor ausgearbeiteten Projektarbeit ausführlich behandelt, und hier aufgegriffen.
 
+Danach wurden die Pool Layer vorgestellt, am Beispiel der Max Pool Schicht, welche die Feature Maps verkleinert, und besonders starke Features hervorhebt.
 
+Zuletzt wurden die Convolution Schichten behandelt. Diese Schichten benutzen Filter, um bestimmte Formen, die auf Englisch "Features" genannt werden, aus den Bildern zu extrahieren. Diese Filter werden automatisch erlernt, genau so wie die Gewichte in den Fully Connected Layern. Das Netzwerk ist in der Lage, durch Trainingsdaten selbständig Filter zu trainieren, welche besondere Merkmale erkennen. 
+
+Danach haben wir uns den Code angesehen, der die Schichten verwaltet, und damit nicht nur in der Lage ist, Netzwerke zu erstellen, sondern auch die Funktionalität zur Verfügung zu stellen, um Netzwerke zu trainieren, und sie Bilder Klassifizieren zu lassen.
+
+Zum Schluss haben wir das Netzwerk mit verschiedenen Konfigurationen getestet, und die Ergebnisse bewertet. Wir konnten Feststellen, dass das Netzwerk gute Ergebnisse liefern kann, aber wir konnten auch sehen, dass die Implementation noch verbessert werden kann.
+
+Abschließend lässt sich sagen, dass dieses Projekt eine Interessante Erfahrung war. Die Künstlichen Intelligenzen erfahren aktuell ein gewisses Maß an Mystifizierung durch die Medien, aber zu verstehen, wie sie wirklich Funktionieren hilft zu erkennen, wozu die Netzwerke wirklich in der Lage sind, und was reine Spekulation ist. 
+
+\cleardoublepage
+\thispagestyle{empty}
+\includegraphics[scale=0.75]{Eigenständigkeit2024.pdf}
 
 \cleardoublepage
 % \phantomsection
