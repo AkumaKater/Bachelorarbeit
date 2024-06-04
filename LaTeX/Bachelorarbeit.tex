@@ -133,7 +133,7 @@ Zum Beispiel basiert die YOLO Architectur auf einem riesigen Convolutional Netwo
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.38]{Images/BA_007_YOLO.png}
+\includegraphics[scale=0.38]{Images/007_YOLO.png}
 \caption{The YOLO Architecture[5]}
 \label{The YOLO Architecture[5]}
 \end{figure}
@@ -149,7 +149,7 @@ Das Grundprinzip ist vergleichbar kompliziert. Jede Schicht enthält sogenannte 
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.40]{./Images/BA_001_DasNeuron.png}
+\includegraphics[scale=0.40]{./Images/001_DasNeuron.png}
 \caption{Das Neuron}
 \label{Das Neuron}
 \end{figure}
@@ -158,7 +158,7 @@ Alle Knoten einer Schicht, sind mit allen Knoten der nächsten Schicht verbunden
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.50]{./Images/BA_002_FeedForwardNetzwerk.jpg}
+\includegraphics[scale=0.50]{./Images/002_FeedForwardNetzwerk.jpg}
 \caption{Das Neuronale Netzwerk}
 \label{Das Neuronale Netzwerk}
 \end{figure}
@@ -187,7 +187,7 @@ Die "learnRate" schränkt die Größe der Inkremente zwischen den einzelnen gele
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.50]{./Images/BA_006_LearnRate.jpg}
+\includegraphics[scale=0.50]{./Images/006_LearnRate.jpg}
 \caption{Learn Rate}
 \label{Learn Rate}
 \end{figure}
@@ -563,7 +563,19 @@ public class MaxPoolLayer extends Layer {
 \subsection{Forward Propagation im Pooling Layer}
 Wie oben beschrieben, wird hier ein kleiner Filter benutzt, der über die Inputbilder gleitet, und entweder den maximalen Wert, oder den Durchschnittswert zurückgibt. 
 
-%TODO Bild einfügen
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.40]{Images/008_MaxPool1.jpg}
+\caption{Max Pool Schritt  1}
+\label{Max Pool Schritt  1}
+\end{figure}
+
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.40]{Images/009_MaxPool2.jpg}
+\caption{Max Pool Schritt 2}
+\label{Max Pool Schritt  2}
+\end{figure}
 
 Zunächst wird eine Methode benötigt, die den Filter darstellt, und eine Feature Map durchläuft. 
 
@@ -751,7 +763,7 @@ In dieser Schicht geht es darum, bestimmte Features zu erkennen, und diese in ei
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.27]{./Images/BA_003_tensorflow-keras-cnn-hierarchical-structure.png}
+\includegraphics[scale=0.27]{./Images/003_tensorflow-keras-cnn-hierarchical-structure.png}
 \caption{Tiefe der Abstraktion von Merkmalen [3]}
 \label{Tiefe der Abstraktion von Merkmalen [3]}
 \end{figure}
@@ -769,20 +781,20 @@ Der Filter kann dabei ganz weit außen starten, oder innerhalb der Grenzen des E
 In diesem Netzwerk wird die Valid Cross-Correlation verwendet. Die Größe der entstehenden Feature Map hängt ebenfalls davon ab, welche Cross-Correlation verwendet wird. 
 Bei der Full Cross-Correlation wird außerhalb der Matrix angefangen. Das bedeutet, dass mehr Schritte benötigt werden, um durch eine Reihe zu iterieren, und daher entstehen auch mehr Einträge in der Feature Map.
 
-% Done Hier muss noch ein Bild hin welches die Full Cross-Correlation erklärt
+
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.5]{./Images/Full_Correlation_004.jpg}
+\includegraphics[scale=0.5]{./Images/004_Full_Correlation.jpg}
 \caption{Full Cross-Correlation}
 \label{Full Cross-Correlation}
 \end{figure}
  
 Die Valid Cross-Correlation hingegen bewegt sich nur in den Grenzen des Eingangsbildes, daher entstehen weniger Einträge in die Feature Map.
 
-% Done Hier muss noch ein Bild hin welches die Valid Cross-Correlation erklärt
+
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.5]{./Images/Valid_Correlation_005.jpg}
+\includegraphics[scale=0.5]{./Images/005_Valid_Correlation.jpg}
 \caption{Valid Cross-Correlation}
 \label{Valid Cross-Correlation}
 \end{figure}
