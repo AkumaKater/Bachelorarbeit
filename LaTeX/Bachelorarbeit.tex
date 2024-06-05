@@ -563,14 +563,14 @@ public class MaxPoolLayer extends Layer {
 \subsection{Forward Propagation im Pooling Layer}
 Wie oben beschrieben, wird hier ein kleiner Filter benutzt, der über die Inputbilder gleitet und entweder den maximalen Wert, oder den Durchschnittswert zurückgibt. 
 
-\begin{figure}[htp]
+\begin{figure}[H]
 \centering
 \includegraphics[scale=0.40]{Images/008_MaxPool1.jpg}
 \caption{Max Pool Schritt  1}
 \label{Max Pool Schritt  1}
 \end{figure}
 
-\begin{figure}[htp]
+\begin{figure}[H]
 \centering
 \includegraphics[scale=0.40]{Images/009_MaxPool2.jpg}
 \caption{Max Pool Schritt 2}
@@ -1054,20 +1054,25 @@ $$\frac{dO_{22}} {dF_{11}} = X_{33}$$
 
 Wir können das zur besseren Lesbarkeit einmal in die lange Formel von vorhin einsetzten:
 
-$$
-\frac{dC}{dF_{11}} = 
-\frac{dC} {dO_{11}} X_{11}+
-\frac{dC} {dO_{12}} X_{13}+
-\frac{dC} {dO_{21}} X_{31}+
-\frac{dC} {dO_{22}} X_{33}
-$$
+%$$
+%\frac{dC}{dF_{11}} = 
+%\frac{dC} {dO_{11}} X_{11}+
+%\frac{dC} {dO_{12}} X_{13}+
+%\frac{dC} {dO_{21}} X_{31}+
+%\frac{dC} {dO_{22}} X_{33}
+%$$
 
-Und einmal mit einer Grafik:
-
-%TODO Das Bild muss noch angepasst werden, die Formel steht ja schon oben drüber, muss also weg, Reihenfolge verändern
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.50]{./Images/TemporaryPlaceholders/Fehlerrückverfolgung auf Filtern.png}
+\includegraphics[scale=0.25]{Images/015_BackProp_Delta.png}
+\caption{Fehlerrückverfolgung zu einem Filter}
+\label{Fehlerrückverfolgung zu einem Filter v1}
+\end{figure}
+
+Und einmal mit einer Grafik:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.30]{./Images/013_Backpropagation_Filter.png}
 \caption{Fehlerrückverfolgung zu einem Filter}
 \label{Fehlerrückverfolgung zu einem Filter v1}
 \end{figure}
@@ -1077,18 +1082,24 @@ Das die einzelnen Werte auf dem Inputbild jeweils einen Schritt auseinander lieg
 Die zweite Änderungsrate die wir berechnen wollen, ist $\frac{dC}{dF_{12}}$. 
 
 
-$$
-\frac{dC}{dF_{12}} = 
-\frac{dC} {dO_{11}} X_{12}+
-\frac{dC} {dO_{12}} X_{14}+
-\frac{dC} {dO_{21}} X_{32}+
-\frac{dC} {dO_{22}} X_{34}
-$$
+%$$
+%\frac{dC}{dF_{12}} = 
+%\frac{dC} {dO_{11}} X_{12}+
+%\frac{dC} {dO_{12}} X_{14}+
+%\frac{dC} {dO_{21}} X_{32}+
+%\frac{dC} {dO_{22}} X_{34}
+%$$
 
-%TODO Das Bild muss noch angepasst werden, Reihenfolge verändern
+\begin{figure}[htp]
+\centering
+\includegraphics[scale=0.20]{Images/016_BackProp_Delta.png}
+\caption{Fehlerrückverfolgung zu einem Filter}
+\label{Fehlerrückverfolgung zu einem Filter v2}
+\end{figure}
+
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.50]{./Images/TemporaryPlaceholders/Fehlerrückverfolgung auf Filtern_2.png}
+\includegraphics[scale=0.35]{./Images/014_Backpropagation_Filter.png}
 \caption{Fehlerrückverfolgung zu einem Filter}
 \label{Fehlerrückverfolgung zu einem Filter v2}
 \end{figure}
