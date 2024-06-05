@@ -644,8 +644,6 @@ Und im Code werden diese so umgesetzt:
 \subsection{Backpropagation im Pooling Layer}
 Für die Backpropagation in einem Pooling Layer müssen keine Gewichte oder Biases angepasst werden. Denn diese gibt es hier nicht. Stattdessen muss der Fehler aber trotzdem auf einen der Inputs zurückgeführt werden, das heißt zum Beispiel, dass beim Max Pooling aus jedem von dem Filterfenster betrachteten Gebiet der maximale Wert für den Fehler verantwortlich war und die anderen Werte keine Verantwortung tragen. 
 
-%TODO Bild einfügen
-
 Am besten gelingt dies, indem die Positionen der maximal Werte gespeichert werden.
 Dazu sollten erst neuen Instanzvariablen angelegt werden:
 
@@ -803,12 +801,6 @@ Die Berechnung der Breite und Höhe einer entstehenden Feature Map sind genauso 
 
 $$H_{out} = (H - filter\_height)/stride + 1$$
 $$W_{out} = (W - filter\_ width)/stride + 1$$
-
-
-% TODO Hier müssen mehr erklärungen hin zu der Funktionsweise der Schicht
-
-
-
 
 
 
@@ -1146,11 +1138,10 @@ $$\frac {dC} {dX_{11}} =
 \frac {dC}{dO_{11}} \frac {dO}{dX_{11}} =
 \frac {dC}{dO_{11}} F_{11}$$
 Um das ein wenig verständlicher darzustellen, visualisieren wir das farblich:
-%TODO Bild einfügen für den Oben genannten Umstand
 
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.80]{Images/TemporaryPlaceholders/Farbliche Visualisierung der Fehlerrückführung über die Inputs X11.png}
+\includegraphics[scale=0.27]{Images/017_BackProp_X11.png}
 \caption{Farbliche Visualisierung der Fehlerrückführung über die Inputs X11}
 \label{Farbliche Visualisierung der Fehlerrückführung über die Inputs X11}
 \end{figure}
@@ -1159,10 +1150,9 @@ Nur beim ersten Schritt, wenn der Filter ganz oben in der linken Ecke des Bildes
 
 $$\frac {dC} {dX_{12}} = \frac {dC}{dO_{11}} F_{12}$$
 
-%TODO Ersetze das Bild Dringend
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.80]{Images/TemporaryPlaceholders/Farbliche Visualisierung der Fehlerrückführung über die Inputs X12.png}
+\includegraphics[scale=0.27]{Images/017_BackProp_X12.png}
 \caption{Farbliche Visualisierung der Fehlerrückführung über die Inputs X12}
 \label{Farbliche Visualisierung der Fehlerrückführung über die Inputs X12}
 \end{figure}
@@ -1170,22 +1160,20 @@ $$\frac {dC} {dX_{12}} = \frac {dC}{dO_{11}} F_{12}$$
 Anders sieht es allerdings z.B. bei $X_{31}$ aus. Dieser Wert wird sowohl durch den ersten Schritt verwendet, als auch durch den vierten. Das spiegelt sich in der Ableitung wieder:
 $$\frac {dC} {dX_{31}} = \frac {dC}{dO_{11}} F_{31} + \frac {dC}{dO_{21}} F_{11}$$
 
-%TODO Ersetze das Bild Dringend
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.80]{Images/TemporaryPlaceholders/Farbliche Visualisierung der Fehlerrückführung über die Inputs X31.png}
+\includegraphics[scale=0.27]{Images/017_BackProp_X31.png}
 \caption{Farbliche Visualisierung der Fehlerrückführung über die Inputs X31}
 \label{Farbliche Visualisierung der Fehlerrückführung über die Inputs X31}
 \end{figure}
 
 Hier wird schon sichtbar, dass die Error Map horizontal und vertikal verdreht verwendet wird, aber das wird noch sichtbarer, wenn wir uns $X_{33}$ ansehen. Dieser Wert kommt in allen vier Schritten vor:
 
-$$\frac {dC} {dX_{33}} = \frac {dC}{dO_{11}} F_{33} + \frac {dC}{dO_{31}} F_{11} + \frac {dC}{dO_{21}} F_{13} + \frac {dC}{dO_{22}} F_{11}$$
+$$\frac {dC} {dX_{33}} = \frac {dC}{dO_{22}} F_{11} + \frac {dC}{dO_{21}} F_{13} + \frac {dC}{dO_{12}} F_{31} + \frac {dC}{dO_{11}} F_{33}$$
 
-%TODO Ersetze das Bild Dringend
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.80]{Images/TemporaryPlaceholders/Farbliche Visualisierung der Fehlerrückführung über die Inputs X31.png}
+\includegraphics[scale=0.27]{Images/017_BackProp_X33.png}
 \caption{Farbliche Visualisierung der Fehlerrückführung über die Inputs X33}
 \label{Farbliche Visualisierung der Fehlerrückführung über die Inputs X33}
 \end{figure}
