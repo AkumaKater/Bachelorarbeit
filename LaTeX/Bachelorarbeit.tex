@@ -979,10 +979,9 @@ Das Konzept der Backpropagation funktioniert im Prinziep so wie zuvor bei den Fu
 Ebenfalls genau wie zuvor, müssen wir herausfinden, wie viel ein jeder Eintrag im Filter zu dem entstandenen Fehler beigetragen hat. Dazu kann eine Ableitung der ForwardPass Funktion genutzt werden. Anhand der Steigung kann dann abgelesene werden, in welche Richtung die Filter angepasst werden müssen. Dieser Prozess ist aber etwas komplizierter, als in den Fully Connected Schichten. Jeder Eintrag im Filter hat nicht auf alle Felder in einem Inputbild Einfluss. Zum einen wird bei der Valid Cross Correlation nicht jeder Eintrag des Filters über alle Pixel des Bildes gezogen, sondern der Filter bleibt an den Grenzen des Bildes stehen. Und zum anderen wird es noch komplizierter, wenn der Filter eine Schrittgröße über größer als Eins hat. Dann entstehen Lücken, über die der jeweilige Eintrag im Filter springt. All dass muss beachtet werden. 
 
 Wir sehen uns zuerst ein Beispiel für einen Forwardpass an:
-
 \begin{figure}[H]
 \centering
-\includegraphics[scale=0.50]{./Images/TemporaryPlaceholders/Bildschirmfoto vom 2024-05-20 15-33-37.png}
+\includegraphics[scale=0.27]{Images/010_ForwardPassConvolution.png}
 \caption{Beispiel für Forwardpass}
 \label{Beispiel für Forwardpass}
 \end{figure}
