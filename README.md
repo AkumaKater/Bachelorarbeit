@@ -12,7 +12,7 @@ https://github.com/AkumaKater/Projektarbeit
 
 ## Die Bachelorarbeit
 
-Die Bachelorarbeit befindet sich im PDF Format in diesem Ordner, unter dem namen "Bachelorarbeit.pdf".
+Die Bachelorarbeit befindet sich im PDF Format im LaTeX Ordner, unter dem namen "Bachelorarbeit.pdf".
 
 ## Der Code
 
