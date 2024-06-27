@@ -28,9 +28,8 @@ public class Main {
          double learnRate = 0.1;
 
         NetworkBuilder builder = new NetworkBuilder(28, 28, 256*100);
-        builder.addConvolutionLayer(8, 5, 2, learnRate);
+        builder.addConvolutionLayer(16, 7, 1, learnRate);
         builder.addMaxPoolLayer(2, 3);
-        //builder.addFullyConnectedLayer(250, learnRate);
         builder.addFullyConnectedLayer(10, learnRate);
 
         NeuralNetwork nn = builder.build();
